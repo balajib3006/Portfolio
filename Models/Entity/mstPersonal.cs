@@ -5,30 +5,36 @@ namespace BalajiPortfolio.Models.Entity
     public class mstPersonal
     {
         [Key]
-        public int Id { get; set; }
+        public int mstPersonalId { get; set; }
 
-        // Personal Details
-        public string? Name { get; set; }
-        public string? ProfilePictureUrl { get; set; }
-        public string? MobileNumber { get; set; }
-        public string? Email { get; set; }
-        public string? Location { get; set; }
-        public string? Bio { get; set; }
-        public string? WorkDetails { get; set; }
+        #region Personal Details
+        public string? name { get; set; }
+        public string? profilePictureUrl { get; set; }
+        public string? mobileNumber { get; set; }
+        public string? email { get; set; }
+        public string? location { get; set; }
+        public string? bio { get; set; }
+        public string? workDetails { get; set; }
+        #endregion
 
-        // About Section Details
-        public string? ProfessionalSummary { get; set; }
-        public string? YearsOfExperience { get; set; }
-        public string? ProjectsCompleted { get; set; }
-        public string? CompaniesWorked { get; set; }
+        #region About Section Details
+        public string? professionalSummary { get; set; }
+        public string? yearsOfExperience { get; set; }
+        public string? projectsCompleted { get; set; }
+        public string? companiesWorked { get; set; }
+        #endregion
 
-        // Social Media URLs
-        public string? LinkedInUrl { get; set; }
-        public string? GitHubUrl { get; set; }
-        public string? GitLabUrl { get; set; }
-        public string? OrcidUrl { get; set; }
-        public string? GoogleScholarUrl { get; set; }
+        #region Social Media URLs
+        public string? linkedInUrl { get; set; }
+        public string? gitHubUrl { get; set; }
+        public string? gitLabUrl { get; set; }
+        public string? orcidUrl { get; set; }
+        public string? googleScholarUrl { get; set; }
+        #endregion
 
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        #region Audit Fields
+        public bool isActive { get; set; } = true;
+        public DateTime updatedAt { get; set; } = DateTime.UtcNow;
+        #endregion
     }
 }

@@ -1,4 +1,4 @@
-using BalajiPortfolio.Data;
+using BalajiPortfolio.Helpers.DbContexts;
 using BalajiPortfolio.Interfaces;
 using BalajiPortfolio.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -11,27 +11,30 @@ namespace BalajiPortfolio
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            #region Services & Database Configuration
             builder.Services.AddControllersWithViews();
 
             // Configure Entity Framework Core with SQLite
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            builder.Services.AddDbContext<appDBContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") 
                     ?? "Data Source=portfolio.db"));
 
-            // Register Repositories
+            // Register Repositories and Response Handler
+            builder.Services.AddScoped<IApiResponseRepository, ApiResponseRepository>();
             builder.Services.AddScoped<IPersonalRepository, PersonalRepository>();
+            #endregion
 
             var app = builder.Build();
 
-            // Ensure Database is Created on Startup
+            #region Startup Database Initialization
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var dbContext = scope.ServiceProvider.GetRequiredService<appDBContext>();
                 dbContext.Database.EnsureCreated();
             }
+            #endregion
 
-            // Configure the HTTP request pipeline.
+            #region HTTP Pipeline Configuration
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -48,6 +51,7 @@ namespace BalajiPortfolio
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Personal}/{action=Index}/{id?}");
+            #endregion
 
             app.Run();
         }
