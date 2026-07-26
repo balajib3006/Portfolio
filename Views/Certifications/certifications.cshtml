@@ -16,38 +16,20 @@
         transform: translateY(-2px);
     }
     .type-badge-cert {
-        background: #fef3c7;
-        color: #92400e;
+        background: #eff6ff;
+        color: #1e40af;
         font-weight: 600;
         font-size: 0.8rem;
         padding: 4px 12px;
         border-radius: 8px;
-    }
-    .type-badge-badge {
-        background: #e0e7ff;
-        color: #3730a3;
-        font-weight: 600;
-        font-size: 0.8rem;
-        padding: 4px 12px;
-        border-radius: 8px;
+        border: 1px solid #bfdbfe;
     }
     .cert-icon {
         width: 50px;
         height: 50px;
         border-radius: 12px;
-        background: rgba(79, 70, 229, 0.1);
-        color: #4f46e5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-    .badge-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        background: rgba(245, 158, 11, 0.1);
-        color: #d97706;
+        background: #eff6ff;
+        color: #2563eb;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -76,10 +58,10 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
-            <h2 class="h3 fw-bold text-dark mb-1"><i class="fa-solid fa-certificate text-warning me-2"></i>Certifications & Badges</h2>
+            <h2 class="h3 fw-bold text-dark mb-1"><i class="fa-solid fa-certificate text-primary me-2"></i>Certifications & Badges</h2>
             <p class="text-muted mb-0">Manage professional certificates, achievement badges, verification links, and embed codes</p>
         </div>
-        <button type="button" class="btn btn-warning text-dark btn-lg rounded-3 shadow-sm px-4 fw-semibold" onclick="openAddCertificationModal()">
+        <button type="button" class="btn btn-primary btn-lg rounded-3 shadow-sm px-4 fw-semibold" onclick="openAddCertificationModal()">
             <i class="fa-solid fa-plus me-2"></i>Add Certification / Badge
         </button>
     </div>
@@ -95,10 +77,10 @@
                     <div class="card cert-card h-100 p-4 d-flex flex-column justify-content-between">
                         <div>
                             <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div class="@(isBadge ? "badge-icon" : "cert-icon")">
+                                <div class="cert-icon">
                                     <i class="fa-solid @(isBadge ? "fa-award" : "fa-certificate")"></i>
                                 </div>
-                                <span class="@(isBadge ? "type-badge-badge" : "type-badge-cert")">
+                                <span class="type-badge-cert">
                                     <i class="fa-solid @(isBadge ? "fa-shield-halved" : "fa-ribbon") me-1"></i>@item.type
                                 </span>
                             </div>
@@ -118,7 +100,7 @@
                             @if (!string.IsNullOrEmpty(item.credentialLink))
                             {
                                 <div class="mb-3">
-                                    <a href="@item.credentialLink" target="_blank" class="btn btn-sm btn-outline-secondary rounded-2">
+                                    <a href="@item.credentialLink" target="_blank" class="btn btn-sm btn-outline-primary rounded-2">
                                         <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>Verify Credential
                                     </a>
                                 </div>
@@ -127,7 +109,7 @@
                             @if (!string.IsNullOrEmpty(item.embedCode))
                             {
                                 <div class="mt-2 p-2 bg-light rounded-3 border small">
-                                    <div class="fw-semibold text-secondary mb-1"><i class="fa-solid fa-code me-1"></i>Embed Code Snippet</div>
+                                    <div class="fw-semibold text-primary mb-1"><i class="fa-solid fa-code me-1"></i>Embed Code Snippet</div>
                                     <code class="text-dark d-block text-truncate" style="max-height: 40px;">@item.embedCode</code>
                                 </div>
                             }
@@ -157,7 +139,7 @@
             <h5 class="fw-bold text-dark">No Certifications or Badges Added Yet</h5>
             <p class="text-muted mb-4">Click the <strong>"Add Certification / Badge"</strong> button above to populate your credentials.</p>
             <div>
-                <button type="button" class="btn btn-warning text-dark rounded-3 px-4 fw-semibold" onclick="openAddCertificationModal()">
+                <button type="button" class="btn btn-primary rounded-3 px-4 fw-semibold" onclick="openAddCertificationModal()">
                     <i class="fa-solid fa-plus me-2"></i>Add Certification / Badge
                 </button>
             </div>
@@ -172,11 +154,11 @@
 <div class="modal fade" id="modalCertification" tabindex="-1" aria-labelledby="modalCertificationLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-warning text-dark rounded-top-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
                 <h5 class="modal-title fw-bold" id="modalCertificationLabel">
                     <i class="fa-solid fa-certificate me-2"></i><span id="modalCertTitleText">Add Certification / Badge</span>
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form asp-controller="Certification" asp-action="SaveCertification" method="post">
                 @Html.AntiForgeryToken()
@@ -221,7 +203,7 @@
 
                 <div class="modal-footer bg-light rounded-bottom-4">
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning text-dark px-4 fw-semibold">Save Credential</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">Save Credential</button>
                 </div>
             </form>
         </div>
