@@ -1,6 +1,9 @@
 using BalajiPortfolio.Helpers.DbContexts;
 using BalajiPortfolio.Interfaces;
 using BalajiPortfolio.Repositories;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace BalajiPortfolio
@@ -11,13 +14,33 @@ namespace BalajiPortfolio
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            #region Kestrel & Request Body Size Limit Configuration
+            // Increase Kestrel request body size limit to 100 MB
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 104857600; // 100 MB
+            });
+
+            // Increase request/upload size limit to 100 MB
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 104857600; // 100 MB
+            });
+            #endregion
+
             #region Services & Database Configuration
             builder.Services.AddControllersWithViews();
 
-            // Configure Entity Framework Core with SQLite
+            // Configure Entity Framework Core with MySQL
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+                ?? builder.Configuration.GetConnectionString("MySQLConnectionString")
+                ?? "Server=localhost;Database=balajiPortfolio;User=root;Password=Santhosh@20;Port=3306;";
+
             builder.Services.AddDbContext<appDBContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") 
-                    ?? "Data Source=portfolio.db"));
+                options.UseMySql(
+                    connectionString,
+                    new MySqlServerVersion(new Version(8, 0, 36))
+                ));
 
             // Register Repositories and Response Handler
             builder.Services.AddScoped<IApiResponseRepository, ApiResponseRepository>();
@@ -34,20 +57,48 @@ namespace BalajiPortfolio
             #region Startup Database Initialization
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<appDBContext>();
-                dbContext.Database.EnsureCreated();
+                try
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<appDBContext>();
+                    dbContext.Database.EnsureCreated();
+                }
+                catch (Exception ex)
+                {
+                    app.Logger.LogWarning($"Database initialization warning: {ex.Message}");
+                }
             }
             #endregion
 
-            #region HTTP Pipeline Configuration
+            #region Pipeline & Forwarded Headers Configuration
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 
+            var forwardedHeadersOptions = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            };
+            forwardedHeadersOptions.KnownNetworks.Clear();
+            forwardedHeadersOptions.KnownProxies.Clear();
+            app.UseForwardedHeaders(forwardedHeadersOptions);
+
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+
+            // Configure MIME types for static files
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".mp4"] = "video/mp4";
+            provider.Mappings[".webm"] = "video/webm";
+            provider.Mappings[".ogv"] = "video/ogg";
+            provider.Mappings[".step"] = "application/step";
+            provider.Mappings[".stp"] = "application/step";
+            provider.Mappings[".iges"] = "application/iges";
+
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = provider
+            });
 
             app.UseRouting();
 
