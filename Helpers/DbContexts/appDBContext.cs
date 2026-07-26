@@ -11,5 +11,6 @@ namespace BalajiPortfolio.Helpers.DbContexts
         }
 
         public DbSet<mstPersonal> mstPersonals { get; set; }
+        public DbSet<mstExperience> mstExperiences { get; set; }
     }
 }

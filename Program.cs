@@ -22,6 +22,7 @@ namespace BalajiPortfolio
             // Register Repositories and Response Handler
             builder.Services.AddScoped<IApiResponseRepository, ApiResponseRepository>();
             builder.Services.AddScoped<IPersonalRepository, PersonalRepository>();
+            builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
             #endregion
 
             var app = builder.Build();
