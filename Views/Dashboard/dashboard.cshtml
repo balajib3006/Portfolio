@@ -1,5 +1,94 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
+    ViewData["Title"] = "Dashboard";
 }
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-primary">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Projects</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">12</h3>
+                </div>
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary fs-4">
+                    <i class="fa-solid fa-diagram-project"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-success">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Skills</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">24</h3>
+                </div>
+                <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success fs-4">
+                    <i class="fa-solid fa-code"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-info">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Certifications</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">8</h3>
+                </div>
+                <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info fs-4">
+                    <i class="fa-solid fa-certificate"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-warning">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Messages</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">5</h3>
+                </div>
+                <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning fs-4">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <h4 class="fw-bold mb-3"><i class="fa-solid fa-rocket text-primary me-2"></i>Quick Actions</h4>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a asp-controller="Personal" asp-action="Index" class="btn btn-outline-primary w-100 p-3 text-start rounded-3">
+                    <i class="fa-solid fa-address-card fs-4 d-block mb-2"></i>
+                    <span class="fw-bold d-block">Update Profile</span>
+                    <small class="text-muted">Edit bio, details & social media</small>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a asp-controller="Experience" asp-action="Index" class="btn btn-outline-dark w-100 p-3 text-start rounded-3">
+                    <i class="fa-solid fa-briefcase fs-4 d-block mb-2"></i>
+                    <span class="fw-bold d-block">Manage Experience</span>
+                    <small class="text-muted">Add work history & roles</small>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a asp-controller="Project" asp-action="Index" class="btn btn-outline-success w-100 p-3 text-start rounded-3">
+                    <i class="fa-solid fa-diagram-project fs-4 d-block mb-2"></i>
+                    <span class="fw-bold d-block">Add Project</span>
+                    <small class="text-muted">Showcase portfolio work</small>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a asp-controller="Message" asp-action="Index" class="btn btn-outline-info w-100 p-3 text-start rounded-3">
+                    <i class="fa-solid fa-envelope fs-4 d-block mb-2"></i>
+                    <span class="fw-bold d-block">View Inbox</span>
+                    <small class="text-muted">Check contact inquiries</small>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
