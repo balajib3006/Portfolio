@@ -15,5 +15,7 @@ namespace BalajiPortfolio.Helpers.DbContexts
         public DbSet<mstSkillCategory> mstSkillCategories { get; set; }
         public DbSet<mstSkill> mstSkills { get; set; }
         public DbSet<mstProject> mstProjects { get; set; }
+        public DbSet<mstCertification> mstCertifications { get; set; }
+        public DbSet<mstPublication> mstPublications { get; set; }
     }
 }

@@ -25,6 +25,8 @@ namespace BalajiPortfolio
             builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
             builder.Services.AddScoped<ISkillRepository, SkillRepository>();
             builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+            builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
+            builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
             #endregion
 
             var app = builder.Build();
