@@ -1,5 +1,466 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model BalajiPortfolio.Models.Entity.mstPersonal
 @{
+    ViewData["Title"] = "Personal Profile & Details";
+    bool hasPersonal = !string.IsNullOrEmpty(Model.Name);
+    bool hasAbout = !string.IsNullOrEmpty(Model.ProfessionalSummary) || !string.IsNullOrEmpty(Model.YearsOfExperience);
+    bool hasSocial = !string.IsNullOrEmpty(Model.LinkedInUrl) || !string.IsNullOrEmpty(Model.GitHubUrl);
 }
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    .portfolio-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: #ffffff;
+    }
+    .portfolio-card:hover {
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    .profile-avatar {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #4f46e5;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+    }
+    .profile-avatar-placeholder {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+        border: 4px solid #4f46e5;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2);
+    }
+    .stat-badge {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 16px 20px;
+        text-align: center;
+        border-left: 4px solid #4f46e5;
+    }
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .stat-label {
+        font-size: 0.875rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .btn-gradient-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        transition: all 0.2s ease;
+    }
+    .btn-gradient-primary:hover {
+        background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+    }
+    .btn-gradient-secondary {
+        background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        transition: all 0.2s ease;
+    }
+    .btn-gradient-secondary:hover {
+        background: linear-gradient(135deg, #020617 0%, #1e293b 100%);
+        color: white;
+        transform: translateY(-1px);
+    }
+    .btn-gradient-info {
+        background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+        color: white;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        transition: all 0.2s ease;
+    }
+    .btn-gradient-info:hover {
+        background: linear-gradient(135deg, #0369a1 0%, #0891b2 100%);
+        color: white;
+        transform: translateY(-1px);
+    }
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .social-linkedin { background: #0a66c2; color: white; }
+    .social-github { background: #24292e; color: white; }
+    .social-gitlab { background: #fc6d26; color: white; }
+    .social-orcid { background: #a6ce39; color: white; }
+    .social-scholar { background: #4285f4; color: white; }
+    .social-btn:hover { color: white; opacity: 0.9; transform: translateY(-2px); }
+</style>
+
+<div class="container py-4">
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4 shadow-sm" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Top Header Bar with Top Right "Add details" Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h1 class="h3 fw-bold text-dark mb-1"><i class="fa-solid fa-id-card text-primary me-2"></i>Personal Profile</h1>
+            <p class="text-muted mb-0">Manage your personal information, about section, and social links</p>
+        </div>
+        <!-- Top Right Corner Button -->
+        <div>
+            <button type="button" class="btn btn-gradient-primary" data-bs-toggle="modal" data-bs-target="#modalPersonalDetails">
+                <i class="fa-solid fa-user-plus me-2"></i>@(hasPersonal ? "Edit Details" : "Add details")
+            </button>
+        </div>
+    </div>
+
+    <!-- SECTION 1: Personal Details Display Card -->
+    <div class="card portfolio-card mb-5">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-3 text-center mb-3 mb-md-0">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                    {
+                        <img src="@Model.ProfilePictureUrl" alt="Profile Picture" class="profile-avatar mb-2" />
+                    }
+                    else
+                    {
+                        <div class="profile-avatar-placeholder mx-auto mb-2">
+                            @(string.IsNullOrEmpty(Model.Name) ? "P" : Model.Name.Substring(0, 1).ToUpper())
+                        </div>
+                    }
+                </div>
+                <div class="col-md-9">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="fw-bold text-dark mb-1">
+                                @(string.IsNullOrEmpty(Model.Name) ? "Your Name Here" : Model.Name)
+                            </h2>
+                            @if (!string.IsNullOrEmpty(Model.WorkDetails))
+                            {
+                                <p class="text-primary fw-semibold fs-5 mb-2">
+                                    <i class="fa-solid fa-briefcase me-2"></i>@Model.WorkDetails
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3 my-3">
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <span class="badge bg-light text-dark fs-6 p-2 border">
+                                <i class="fa-solid fa-envelope text-danger me-2"></i>@Model.Email
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.MobileNumber))
+                        {
+                            <span class="badge bg-light text-dark fs-6 p-2 border">
+                                <i class="fa-solid fa-phone text-success me-2"></i>@Model.MobileNumber
+                            </span>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Location))
+                        {
+                            <span class="badge bg-light text-dark fs-6 p-2 border">
+                                <i class="fa-solid fa-location-dot text-primary me-2"></i>@Model.Location
+                            </span>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Bio))
+                    {
+                        <div class="mt-3 p-3 bg-light rounded-3 border-start border-4 border-primary">
+                            <h6 class="fw-bold text-secondary mb-1"><i class="fa-solid fa-quote-left me-2"></i>Bio</h6>
+                            <p class="mb-0 text-dark">@Model.Bio</p>
+                        </div>
+                    }
+                    else if (!hasPersonal)
+                    {
+                        <p class="text-muted italic mb-0">No personal details added yet. Click <strong>"Add details"</strong> at the top right to populate your profile.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: About Section Header & Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="h4 fw-bold text-dark mb-0"><i class="fa-solid fa-user-tie text-secondary me-2"></i>About Section</h3>
+        <button type="button" class="btn btn-gradient-secondary" data-bs-toggle="modal" data-bs-target="#modalAboutSection">
+            <i class="fa-solid fa-file-pen me-2"></i>@(hasAbout ? "Edit About section" : "Add About section")
+        </button>
+    </div>
+
+    <div class="card portfolio-card mb-5">
+        <div class="card-body p-4">
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-badge">
+                        <div class="stat-number">@(string.IsNullOrEmpty(Model.YearsOfExperience) ? "0" : Model.YearsOfExperience)</div>
+                        <div class="stat-label"><i class="fa-solid fa-clock me-1"></i>Years of Experience</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-badge">
+                        <div class="stat-number">@(string.IsNullOrEmpty(Model.ProjectsCompleted) ? "0" : Model.ProjectsCompleted)</div>
+                        <div class="stat-label"><i class="fa-solid fa-list-check me-1"></i>Projects Completed</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-badge">
+                        <div class="stat-number">@(string.IsNullOrEmpty(Model.CompaniesWorked) ? "0" : Model.CompaniesWorked)</div>
+                        <div class="stat-label"><i class="fa-solid fa-building me-1"></i>Companies Worked</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ProfessionalSummary))
+            {
+                <div class="p-3 bg-light rounded-3">
+                    <h6 class="fw-bold text-dark mb-2"><i class="fa-solid fa-align-left text-primary me-2"></i>Professional Summary</h6>
+                    <p class="mb-0 text-dark" style="white-space: pre-line;">@Model.ProfessionalSummary</p>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No professional summary added yet. Click <strong>"Add About section"</strong> above to add details.</p>
+            }
+        </div>
+    </div>
+
+    <!-- SECTION 3: Social Media Section Header & Card -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="h4 fw-bold text-dark mb-0"><i class="fa-solid fa-share-nodes text-info me-2"></i>Social Media Profiles</h3>
+        <button type="button" class="btn btn-gradient-info" data-bs-toggle="modal" data-bs-target="#modalSocialMedia">
+            <i class="fa-solid fa-link me-2"></i>@(hasSocial ? "Edit Social media" : "Add social media")
+        </button>
+    </div>
+
+    <div class="card portfolio-card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap gap-3">
+                @if (!string.IsNullOrEmpty(Model.LinkedInUrl))
+                {
+                    <a href="@Model.LinkedInUrl" target="_blank" class="social-btn social-linkedin">
+                        <i class="fa-brands fa-linkedin fs-5"></i> LinkedIn
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.GitHubUrl))
+                {
+                    <a href="@Model.GitHubUrl" target="_blank" class="social-btn social-github">
+                        <i class="fa-brands fa-github fs-5"></i> GitHub
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.GitLabUrl))
+                {
+                    <a href="@Model.GitLabUrl" target="_blank" class="social-btn social-gitlab">
+                        <i class="fa-brands fa-gitlab fs-5"></i> GitLab
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.OrcidUrl))
+                {
+                    <a href="@Model.OrcidUrl" target="_blank" class="social-btn social-orcid">
+                        <i class="fa-brands fa-orcid fs-5"></i> ORCID
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.GoogleScholarUrl))
+                {
+                    <a href="@Model.GoogleScholarUrl" target="_blank" class="social-btn social-scholar">
+                        <i class="fa-solid fa-graduation-cap fs-5"></i> Google Scholar
+                    </a>
+                }
+
+                @if (!hasSocial)
+                {
+                    <p class="text-muted mb-0">No social media profiles added yet. Click <strong>"Add social media"</strong> above to link your accounts.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================================================================= -->
+<!-- MODAL 1: Personal Details Form -->
+<!-- ================================================================= -->
+<div class="modal fade" id="modalPersonalDetails" tabindex="-1" aria-labelledby="modalPersonalDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" id="modalPersonalDetailsLabel">
+                    <i class="fa-solid fa-user-gear me-2"></i>Personal Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Personal" asp-action="SaveDetails" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <input type="hidden" name="ProfilePictureUrl" value="@Model.ProfilePictureUrl" />
+                
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="Name" class="form-control" value="@Model.Name" placeholder="Enter your full name" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Profile Picture</label>
+                            <input type="file" name="profilePictureFile" class="form-control" accept="image/*" />
+                            <small class="text-muted">Upload PNG, JPG, or JPEG image</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Mobile Number</label>
+                            <input type="tel" name="MobileNumber" class="form-control" value="@Model.MobileNumber" placeholder="+1 234 567 8900" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Email ID</label>
+                            <input type="email" name="Email" class="form-control" value="@Model.Email" placeholder="your.email@example.com" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Location</label>
+                            <input type="text" name="Location" class="form-control" value="@Model.Location" placeholder="City, Country" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Work Details (Role / Designation)</label>
+                            <input type="text" name="WorkDetails" class="form-control" value="@Model.WorkDetails" placeholder="e.g. Senior Software Engineer" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Bio</label>
+                            <textarea name="Bio" class="form-control" rows="3" placeholder="Tell us a little bit about yourself...">@Model.Bio</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-semibold">Save Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- MODAL 2: About Section Form -->
+<!-- ================================================================= -->
+<div class="modal fade" id="modalAboutSection" tabindex="-1" aria-labelledby="modalAboutSectionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-dark text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" id="modalAboutSectionLabel">
+                    <i class="fa-solid fa-address-card me-2"></i>About Section
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Personal" asp-action="SaveAbout" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Professional Summary</label>
+                            <textarea name="ProfessionalSummary" class="form-control" rows="4" placeholder="Write a summary of your experience, key achievements, and skills...">@Model.ProfessionalSummary</textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Years of Experience</label>
+                            <input type="text" name="YearsOfExperience" class="form-control" value="@Model.YearsOfExperience" placeholder="e.g. 5+ Years" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Projects Completed</label>
+                            <input type="text" name="ProjectsCompleted" class="form-control" value="@Model.ProjectsCompleted" placeholder="e.g. 25+" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Companies Worked</label>
+                            <input type="text" name="CompaniesWorked" class="form-control" value="@Model.CompaniesWorked" placeholder="e.g. 4" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark px-4 fw-semibold">Save About Section</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ================================================================= -->
+<!-- MODAL 3: Social Media Links Form -->
+<!-- ================================================================= -->
+<div class="modal fade" id="modalSocialMedia" tabindex="-1" aria-labelledby="modalSocialMediaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-info text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" id="modalSocialMediaLabel">
+                    <i class="fa-solid fa-hashtag me-2"></i>Social Media Links
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Personal" asp-action="SaveSocialMedia" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"><i class="fa-brands fa-linkedin text-primary me-2"></i>LinkedIn URL</label>
+                            <input type="url" name="LinkedInUrl" class="form-control" value="@Model.LinkedInUrl" placeholder="https://linkedin.com/in/username" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"><i class="fa-brands fa-github text-dark me-2"></i>GitHub URL</label>
+                            <input type="url" name="GitHubUrl" class="form-control" value="@Model.GitHubUrl" placeholder="https://github.com/username" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"><i class="fa-brands fa-gitlab text-warning me-2"></i>GitLab URL</label>
+                            <input type="url" name="GitLabUrl" class="form-control" value="@Model.GitLabUrl" placeholder="https://gitlab.com/username" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"><i class="fa-brands fa-orcid text-success me-2"></i>ORCID URL</label>
+                            <input type="url" name="OrcidUrl" class="form-control" value="@Model.OrcidUrl" placeholder="https://orcid.org/0000-0000-0000-0000" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold"><i class="fa-solid fa-graduation-cap text-info me-2"></i>Google Scholar URL</label>
+                            <input type="url" name="GoogleScholarUrl" class="form-control" value="@Model.GoogleScholarUrl" placeholder="https://scholar.google.com/citations?user=..." />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info text-white px-4 fw-semibold">Save Social Media</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
