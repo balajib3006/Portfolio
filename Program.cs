@@ -23,6 +23,8 @@ namespace BalajiPortfolio
             builder.Services.AddScoped<IApiResponseRepository, ApiResponseRepository>();
             builder.Services.AddScoped<IPersonalRepository, PersonalRepository>();
             builder.Services.AddScoped<IExperienceRepository, ExperienceRepository>();
+            builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+            builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
             #endregion
 
             var app = builder.Build();
