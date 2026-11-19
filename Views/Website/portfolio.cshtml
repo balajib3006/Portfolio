@@ -8,33 +8,58 @@
     var certifications = Model?.Certifications ?? new List<BalajiPortfolio.Models.DTO.CertificationDTO>();
     var publications = Model?.Publications ?? new List<BalajiPortfolio.Models.DTO.PublicationDTO>();
 
-    string displayName = !string.IsNullOrWhiteSpace(personal.name) ? personal.name : "Balaji";
-    string initials = !string.IsNullOrWhiteSpace(personal.name) 
-        ? string.Join("", personal.name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0])).ToUpper()
-        : "B";
+    // Personal details
+    bool hasName = !string.IsNullOrWhiteSpace(personal.name);
+    string displayName = hasName ? personal.name! : "Portfolio";
+    string initials = hasName 
+        ? string.Join("", personal.name!.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0])).ToUpper()
+        : "P";
     if (initials.Length > 2) initials = initials.Substring(0, 2);
 
-    string displayBio = !string.IsNullOrWhiteSpace(personal.bio) 
-        ? personal.bio 
-        : "Engineer • Developer • Innovator";
+    bool hasBio = !string.IsNullOrWhiteSpace(personal.bio);
+    bool hasSummary = !string.IsNullOrWhiteSpace(personal.professionalSummary);
+    bool hasLocation = !string.IsNullOrWhiteSpace(personal.location);
+    bool hasWorkDetails = !string.IsNullOrWhiteSpace(personal.workDetails);
+    bool hasEmail = !string.IsNullOrWhiteSpace(personal.email);
+    bool hasMobile = !string.IsNullOrWhiteSpace(personal.mobileNumber);
 
-    string displaySummary = !string.IsNullOrWhiteSpace(personal.professionalSummary) 
-        ? personal.professionalSummary 
-        : "Passionate engineer dedicated to crafting high-performance systems, robust applications, and innovative designs from concept through delivery.";
+    // Social & Academic links
+    bool hasLinkedIn = !string.IsNullOrWhiteSpace(personal.linkedInUrl);
+    bool hasGitHub = !string.IsNullOrWhiteSpace(personal.gitHubUrl);
+    bool hasGitLab = !string.IsNullOrWhiteSpace(personal.gitLabUrl);
+    bool hasScholar = !string.IsNullOrWhiteSpace(personal.googleScholarUrl);
+    bool hasOrcid = !string.IsNullOrWhiteSpace(personal.orcidUrl);
+    bool hasAnySocial = hasLinkedIn || hasGitHub || hasGitLab || hasScholar || hasOrcid || hasEmail || hasMobile;
+    bool hasAcademic = hasScholar || hasOrcid;
 
-    int totalProjects = !string.IsNullOrWhiteSpace(personal.projectsCompleted) && int.TryParse(personal.projectsCompleted, out int pc) 
-        ? pc 
-        : (projects.Count > 0 ? projects.Count : 12);
+    // Real stats only (no dummy or hardcoded numbers)
+    bool hasExpYears = !string.IsNullOrWhiteSpace(personal.yearsOfExperience);
+    string expYears = personal.yearsOfExperience ?? "";
 
-    string expYears = !string.IsNullOrWhiteSpace(personal.yearsOfExperience) 
-        ? personal.yearsOfExperience 
-        : "3+";
+    bool hasProjectsCount = !string.IsNullOrWhiteSpace(personal.projectsCompleted) || projects.Count > 0;
+    string projectsCountStr = !string.IsNullOrWhiteSpace(personal.projectsCompleted) 
+        ? personal.projectsCompleted! 
+        : (projects.Count > 0 ? projects.Count.ToString() : "");
 
-    int totalCompanies = !string.IsNullOrWhiteSpace(personal.companiesWorked) && int.TryParse(personal.companiesWorked, out int cw) 
-        ? cw 
-        : (experiences.Count > 0 ? experiences.Count : 4);
+    bool hasCompaniesCount = !string.IsNullOrWhiteSpace(personal.companiesWorked) || experiences.Count > 0;
+    string companiesCountStr = !string.IsNullOrWhiteSpace(personal.companiesWorked) 
+        ? personal.companiesWorked! 
+        : (experiences.Count > 0 ? experiences.Count.ToString() : "");
 
     int totalCredentials = certifications.Count + publications.Count;
+    bool hasCredentialsCount = totalCredentials > 0;
+    string credentialsCountStr = totalCredentials > 0 ? totalCredentials.ToString() : "";
+
+    bool hasAnyStats = hasExpYears || hasProjectsCount || hasCompaniesCount || hasCredentialsCount;
+
+    // Section visibility flags
+    bool hasAboutSection = hasSummary || hasAcademic;
+    bool hasExperienceSection = experiences.Count > 0;
+    bool hasSkillsSection = skillsData.skills.Count > 0;
+    bool hasProjectsSection = projects.Count > 0;
+    bool hasCertificationsSection = certifications.Count > 0;
+    bool hasPublicationsSection = publications.Count > 0;
+    bool hasContactSection = hasEmail || hasMobile || hasLocation || hasAnySocial;
 
     // Distinct project tags
     var allTags = projects
@@ -48,8 +73,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@displayName — Portfolio & Engineering Showcase</title>
-    <meta name="description" content="@displayName's Engineering Portfolio showcasing projects, CAD designs, research, and technical expertise." />
+    <title>@(hasName ? displayName : "Portfolio")</title>
+    <meta name="description" content="@displayName's Engineering Portfolio showcasing verified projects, skills, research, and technical achievements." />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -85,7 +110,6 @@
 
             --gradient-primary: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
             --gradient-card: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-            --gradient-glow: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
         }
 
         * {
@@ -111,7 +135,7 @@
             height: 100vh;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.55;
+            opacity: 0.5;
         }
 
         .ambient-sphere {
@@ -120,7 +144,7 @@
             filter: blur(120px);
             pointer-events: none;
             z-index: 0;
-            opacity: 0.18;
+            opacity: 0.16;
             animation: floatGlow 18s ease-in-out infinite alternate;
         }
 
@@ -141,22 +165,13 @@
             animation-duration: 22s;
         }
 
-        .ambient-sphere-3 {
-            width: 400px;
-            height: 400px;
-            top: 40%;
-            left: 45%;
-            background: #8b5cf6;
-            animation-duration: 26s;
-        }
-
         @@keyframes floatGlow {
             0% { transform: translate(0, 0) scale(1); }
             50% { transform: translate(40px, 60px) scale(1.1); }
             100% { transform: translate(-30px, 30px) scale(0.95); }
         }
 
-        /* Glassmorphism Classes */
+        /* Glassmorphism */
         .glass-panel {
             background: var(--bg-card);
             backdrop-filter: blur(18px);
@@ -218,7 +233,7 @@
             transform: translateX(-50%);
             width: min(94%, 1240px);
             z-index: 1050;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -229,7 +244,7 @@
 
         .portfolio-nav.scrolled {
             top: 10px;
-            background: rgba(11, 15, 25, 0.94);
+            background: rgba(11, 15, 25, 0.95);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
@@ -351,17 +366,17 @@
 
         .avatar-wrapper {
             position: relative;
-            width: 320px;
-            height: 320px;
+            width: 300px;
+            height: 300px;
             margin: 0 auto;
         }
 
         .avatar-glow {
             position: absolute;
-            inset: -8px;
+            inset: -6px;
             border-radius: 50%;
             background: var(--gradient-primary);
-            opacity: 0.7;
+            opacity: 0.65;
             filter: blur(14px);
             z-index: 0;
             animation: rotateGlow 12s linear infinite;
@@ -394,42 +409,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 5.5rem;
+            font-size: 5rem;
             font-weight: 800;
             color: #ffffff;
             font-family: 'Space Grotesk', sans-serif;
             text-shadow: 0 4px 18px rgba(99, 102, 241, 0.5);
-        }
-
-        .floating-badge {
-            position: absolute;
-            z-index: 2;
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 8px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            animation: floatBadge 4s ease-in-out infinite alternate;
-        }
-
-        .floating-badge-1 {
-            top: 20px;
-            left: -20px;
-        }
-
-        .floating-badge-2 {
-            bottom: 25px;
-            right: -25px;
-            animation-delay: 2s;
-        }
-
-        @@keyframes floatBadge {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-8px); }
         }
 
         /* Stats Strip */
@@ -441,6 +425,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            height: 100%;
         }
 
         .stat-card::before {
@@ -470,7 +455,7 @@
             margin-top: 6px;
         }
 
-        /* Social Icons Pill */
+        /* Social Icons */
         .social-link {
             width: 42px;
             height: 42px;
@@ -541,6 +526,7 @@
             background: rgba(17, 24, 39, 0.5);
             border: 1px solid var(--border-glass);
             transition: all 0.25s ease;
+            height: 100%;
         }
 
         .skill-card:hover {
@@ -550,12 +536,12 @@
         }
 
         .skill-badge {
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            text-transform: capitalize;
+            letter-spacing: 0.03em;
         }
 
         .badge-expert {
@@ -582,22 +568,7 @@
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
-        .skill-progress {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 9999px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-
-        .skill-progress-bar {
-            height: 100%;
-            border-radius: 9999px;
-            background: var(--gradient-primary);
-            transition: width 1s ease-in-out;
-        }
-
-        /* Filter Pills */
+        /* Filter Buttons */
         .filter-btn {
             background: rgba(255, 255, 255, 0.05);
             color: var(--text-muted);
@@ -741,7 +712,7 @@
             color: #67e8f9;
         }
 
-        /* Certifications & Publications */
+        /* Credential Card */
         .credential-card {
             border-radius: 16px;
             background: var(--bg-card);
@@ -808,7 +779,6 @@
             flex-shrink: 0;
         }
 
-        /* Form Inputs */
         .form-control-glass {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -830,19 +800,17 @@
             color: #64748b;
         }
 
-        /* Footer */
         .portfolio-footer {
             border-top: 1px solid var(--border-glass);
-            padding: 50px 0 30px;
+            padding: 40px 0 30px;
             background: rgba(7, 10, 18, 0.9);
             position: relative;
             z-index: 1;
         }
 
-        /* Back to top */
         .btn-top {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid var(--border-glass);
@@ -857,11 +825,9 @@
         .btn-top:hover {
             background: var(--primary);
             color: #ffffff;
-            transform: translateY(-4px);
-            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
         }
 
-        /* Responsive Fixes */
         @@media (max-width: 991.98px) {
             .portfolio-nav {
                 border-radius: 18px;
@@ -888,9 +854,9 @@
                 text-align: center;
             }
             .avatar-wrapper {
-                margin-top: 40px;
-                width: 260px;
-                height: 260px;
+                margin-top: 30px;
+                width: 240px;
+                height: 240px;
             }
             .timeline-container {
                 padding-left: 20px;
@@ -907,7 +873,6 @@
     <canvas id="bgCanvas"></canvas>
     <div class="ambient-sphere ambient-sphere-1"></div>
     <div class="ambient-sphere ambient-sphere-2"></div>
-    <div class="ambient-sphere ambient-sphere-3"></div>
 
     <!-- Floating Glass Navbar -->
     <nav class="portfolio-nav" id="mainNav">
@@ -917,37 +882,46 @@
                 <span>@displayName</span>
             </a>
 
-            <!-- Desktop Nav Links -->
+            <!-- Dynamic Nav Links (Only displays sections that actually have data) -->
             <ul class="nav-links" id="navLinksList">
-                <li><a href="#about" class="nav-link-custom">About</a></li>
-                @if (experiences.Count > 0)
+                @if (hasAboutSection)
+                {
+                    <li><a href="#about" class="nav-link-custom">About</a></li>
+                }
+                @if (hasExperienceSection)
                 {
                     <li><a href="#experience" class="nav-link-custom">Experience</a></li>
                 }
-                @if (skillsData.skills.Count > 0)
+                @if (hasSkillsSection)
                 {
                     <li><a href="#skills" class="nav-link-custom">Skills</a></li>
                 }
-                @if (projects.Count > 0)
+                @if (hasProjectsSection)
                 {
                     <li><a href="#projects" class="nav-link-custom">Projects</a></li>
                 }
-                @if (certifications.Count > 0)
+                @if (hasCertificationsSection)
                 {
                     <li><a href="#certifications" class="nav-link-custom">Certifications</a></li>
                 }
-                @if (publications.Count > 0)
+                @if (hasPublicationsSection)
                 {
                     <li><a href="#publications" class="nav-link-custom">Publications</a></li>
                 }
-                <li><a href="#contact" class="nav-link-custom">Contact</a></li>
+                @if (hasContactSection)
+                {
+                    <li><a href="#contact" class="nav-link-custom">Contact</a></li>
+                }
             </ul>
 
             <!-- Nav Action Buttons -->
             <div class="d-flex align-items-center gap-2">
-                <a href="#contact" class="btn-gradient d-none d-sm-inline-flex">
-                    <i class="fa-solid fa-paper-plane"></i> Contact
-                </a>
+                @if (hasContactSection)
+                {
+                    <a href="#contact" class="btn-gradient d-none d-sm-inline-flex">
+                        <i class="fa-solid fa-paper-plane"></i> Contact
+                    </a>
+                }
                 <a href="/Dashboard" title="Admin Portal" class="btn-glass" target="_blank">
                     <i class="fa-solid fa-gauge-high"></i> <span class="d-none d-md-inline">Admin</span>
                 </a>
@@ -966,46 +940,68 @@
                 <div class="col-lg-7" data-aos="fade-up" data-aos-duration="900">
                     <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);">
                         <span class="status-dot"></span>
-                        <span style="font-size: 0.82rem; font-weight: 600; color: #34d399;">Available for Opportunities & Projects</span>
+                        <span style="font-size: 0.82rem; font-weight: 600; color: #34d399;">Available for Opportunities</span>
                     </div>
 
                     <h1 class="display-3 fw-bold mb-2">
-                        Hi, I'm <span class="text-gradient">@displayName</span>
+                        @if (hasName)
+                        {
+                            <span>Hi, I'm <span class="text-gradient">@personal.name</span></span>
+                        }
+                        else
+                        {
+                            <span class="text-gradient">Portfolio Showcase</span>
+                        }
                     </h1>
                     
-                    <h2 class="h3 fw-semibold text-gradient-purple mb-3">
-                        @displayBio
-                    </h2>
+                    @if (hasBio)
+                    {
+                        <h2 class="h3 fw-semibold text-gradient-purple mb-3">
+                            @personal.bio
+                        </h2>
+                    }
 
-                    <p class="lead text-muted mb-4" style="max-width: 600px; font-size: 1.1rem;">
-                        @displaySummary
-                    </p>
+                    @if (hasSummary)
+                    {
+                        <p class="lead text-muted mb-4" style="max-width: 600px; font-size: 1.05rem;">
+                            @personal.professionalSummary
+                        </p>
+                    }
 
-                    <!-- Quick Metadata Pills -->
-                    <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center justify-content-lg-start">
-                        @if (!string.IsNullOrWhiteSpace(personal.location))
-                        {
-                            <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
-                                <i class="fa-solid fa-location-dot text-primary me-2"></i>@personal.location
-                            </span>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(personal.workDetails))
-                        {
-                            <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
-                                <i class="fa-solid fa-briefcase text-info me-2"></i>@personal.workDetails
-                            </span>
-                        }
-                    </div>
+                    <!-- Real Location / Work Details Pills (Only if entered) -->
+                    @if (hasLocation || hasWorkDetails)
+                    {
+                        <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center justify-content-lg-start">
+                            @if (hasLocation)
+                            {
+                                <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
+                                    <i class="fa-solid fa-location-dot text-primary me-2"></i>@personal.location
+                                </span>
+                            }
+                            @if (hasWorkDetails)
+                            {
+                                <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
+                                    <i class="fa-solid fa-briefcase text-info me-2"></i>@personal.workDetails
+                                </span>
+                            }
+                        </div>
+                    }
 
                     <!-- Call to Actions -->
-                    <div class="d-flex flex-wrap gap-3 mb-5 justify-content-center justify-content-lg-start">
-                        <a href="#projects" class="btn-gradient">
-                            <i class="fa-solid fa-shapes"></i> Explore Portfolio
-                        </a>
-                        <a href="#contact" class="btn-glass">
-                            <i class="fa-solid fa-envelope"></i> Get in Touch
-                        </a>
-                        @if (!string.IsNullOrWhiteSpace(personal.email))
+                    <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center justify-content-lg-start">
+                        @if (hasProjectsSection)
+                        {
+                            <a href="#projects" class="btn-gradient">
+                                <i class="fa-solid fa-shapes"></i> View Projects
+                            </a>
+                        }
+                        @if (hasContactSection)
+                        {
+                            <a href="#contact" class="btn-glass">
+                                <i class="fa-solid fa-envelope"></i> Get in Touch
+                            </a>
+                        }
+                        @if (hasEmail)
                         {
                             <a href="mailto:@personal.email" class="btn-glass" title="Email Direct">
                                 <i class="fa-solid fa-at"></i> Email Me
@@ -1013,37 +1009,40 @@
                         }
                     </div>
 
-                    <!-- Social / Academic Icons -->
-                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-lg-start">
-                        <span class="text-muted small me-2 font-mono">Connect:</span>
-                        @if (!string.IsNullOrWhiteSpace(personal.linkedInUrl))
-                        {
-                            <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(personal.gitHubUrl))
-                        {
-                            <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(personal.gitLabUrl))
-                        {
-                            <a href="@personal.gitLabUrl" target="_blank" class="social-link" title="GitLab"><i class="fa-brands fa-gitlab"></i></a>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(personal.googleScholarUrl))
-                        {
-                            <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(personal.orcidUrl))
-                        {
-                            <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID Profile"><i class="fa-brands fa-orcid"></i></a>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(personal.mobileNumber))
-                        {
-                            <a href="tel:@personal.mobileNumber" class="social-link" title="Call Me"><i class="fa-solid fa-phone"></i></a>
-                        }
-                    </div>
+                    <!-- Verified Social & Academic Links (Only rendered if URL exists) -->
+                    @if (hasAnySocial)
+                    {
+                        <div class="d-flex align-items-center gap-2 justify-content-center justify-content-lg-start">
+                            <span class="text-muted small me-2 font-mono">Connect:</span>
+                            @if (hasLinkedIn)
+                            {
+                                <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                            }
+                            @if (hasGitHub)
+                            {
+                                <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                            }
+                            @if (hasGitLab)
+                            {
+                                <a href="@personal.gitLabUrl" target="_blank" class="social-link" title="GitLab"><i class="fa-brands fa-gitlab"></i></a>
+                            }
+                            @if (hasScholar)
+                            {
+                                <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                            }
+                            @if (hasOrcid)
+                            {
+                                <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID Profile"><i class="fa-brands fa-orcid"></i></a>
+                            }
+                            @if (hasMobile)
+                            {
+                                <a href="tel:@personal.mobileNumber" class="social-link" title="Call Me"><i class="fa-solid fa-phone"></i></a>
+                            }
+                        </div>
+                    }
                 </div>
 
-                <!-- Hero Right: Avatar & Floating Badges -->
+                <!-- Hero Right: Avatar with Glow Ring -->
                 <div class="col-lg-5" data-aos="zoom-in" data-aos-duration="1000">
                     <div class="avatar-wrapper">
                         <div class="avatar-glow"></div>
@@ -1055,166 +1054,172 @@
                         {
                             <div class="avatar-fallback">@initials</div>
                         }
-
-                        <!-- Floating Badges -->
-                        <div class="floating-badge floating-badge-1">
-                            <i class="fa-solid fa-cube text-info fs-5"></i>
-                            <div>
-                                <div class="fw-bold" style="font-size: 0.85rem;">CAD & 3D Assets</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">STEP / IGES Models</div>
-                            </div>
-                        </div>
-
-                        <div class="floating-badge floating-badge-2">
-                            <i class="fa-solid fa-microchip text-primary fs-5"></i>
-                            <div>
-                                <div class="fw-bold" style="font-size: 0.85rem;">Engineering & Code</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">Full-Stack Solutions</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats Ribbon -->
-            <div class="row g-3 mt-5 pt-3" data-aos="fade-up" data-aos-duration="800">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-number">@expYears</div>
-                        <div class="stat-label">Years of Experience</div>
-                    </div>
+            <!-- Real Stats Ribbon (Only displayed if actual values are present) -->
+            @if (hasAnyStats)
+            {
+                <div class="row g-3 mt-5 pt-3 justify-content-center" data-aos="fade-up" data-aos-duration="800">
+                    @if (hasExpYears)
+                    {
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">@expYears</div>
+                                <div class="stat-label">Years Experience</div>
+                            </div>
+                        </div>
+                    }
+                    @if (hasProjectsCount)
+                    {
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">@projectsCountStr</div>
+                                <div class="stat-label">Projects Completed</div>
+                            </div>
+                        </div>
+                    }
+                    @if (hasCompaniesCount)
+                    {
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">@companiesCountStr</div>
+                                <div class="stat-label">Companies / Clients</div>
+                            </div>
+                        </div>
+                    }
+                    @if (hasCredentialsCount)
+                    {
+                        <div class="col-6 col-md-3">
+                            <div class="stat-card">
+                                <div class="stat-number">@credentialsCountStr</div>
+                                <div class="stat-label">Certs & Publications</div>
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-number">@totalProjects+</div>
-                        <div class="stat-label">Projects Completed</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-number">@totalCompanies+</div>
-                        <div class="stat-label">Companies / Clients</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <div class="stat-number">@(totalCredentials > 0 ? totalCredentials.ToString() : "10+")</div>
-                        <div class="stat-label">Certs & Publications</div>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     </section>
 
-    <!-- About Section -->
-    <section id="about" class="py-5">
-        <div class="container py-4">
-            <div class="text-center mb-5" data-aos="fade-up">
-                <div class="section-badge"><i class="fa-solid fa-user"></i> About Me</div>
-                <h2 class="display-5 fw-bold">Engineering Journey & Vision</h2>
-                <p class="text-muted" style="max-width: 620px; margin: 0 auto;">Combining technical precision, mechanical insight, and modern software engineering.</p>
-            </div>
+    <!-- About Section (Only displayed if summary or academic links exist) -->
+    @if (hasAboutSection)
+    {
+        <section id="about" class="py-5">
+            <div class="container py-4">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <div class="section-badge"><i class="fa-solid fa-user"></i> About</div>
+                    <h2 class="display-5 fw-bold">Professional Overview</h2>
+                </div>
 
-            <div class="row gy-4 align-items-stretch">
-                <!-- Summary Card -->
-                <div class="col-lg-7" data-aos="fade-right">
-                    <div class="glass-panel p-4 p-md-5 h-100">
-                        <h3 class="h4 fw-bold mb-3 text-gradient">Professional Summary</h3>
-                        <p class="text-sub" style="font-size: 1.05rem; white-space: pre-line;">
-                            @displaySummary
-                        </p>
-                        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
-                            <div class="row g-3">
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="stat-icon-sm text-primary fs-4"><i class="fa-solid fa-bullseye"></i></div>
-                                        <div>
-                                            <div class="text-muted small">Specialization</div>
-                                            <div class="fw-semibold">Design, CAD & Development</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="stat-icon-sm text-info fs-4"><i class="fa-solid fa-layer-group"></i></div>
-                                        <div>
-                                            <div class="text-muted small">Methodology</div>
-                                            <div class="fw-semibold">Agile & Cross-functional</div>
-                                        </div>
+                <div class="row gy-4 align-items-stretch justify-content-center">
+                    @if (hasSummary && hasAcademic)
+                    {
+                        <!-- Two-column layout when both summary and academic profiles exist -->
+                        <div class="col-lg-7" data-aos="fade-right">
+                            <div class="glass-panel p-4 p-md-5 h-100">
+                                <h3 class="h4 fw-bold mb-3 text-gradient">Summary</h3>
+                                <p class="text-sub" style="font-size: 1.05rem; white-space: pre-line;">
+                                    @personal.professionalSummary
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-5" data-aos="fade-left">
+                            <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <h3 class="h4 fw-bold mb-3 text-gradient-purple">Research & Scholar Profiles</h3>
+                                    <div class="d-flex flex-column gap-3">
+                                        @if (hasScholar)
+                                        {
+                                            <a href="@personal.googleScholarUrl" target="_blank" class="contact-item-box">
+                                                <div class="contact-icon-box" style="background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);">
+                                                    <i class="fa-solid fa-graduation-cap"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold">Google Scholar Profile</div>
+                                                    <div class="text-muted small">View Citations & Publications <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                                </div>
+                                            </a>
+                                        }
+                                        @if (hasOrcid)
+                                        {
+                                            <a href="@personal.orcidUrl" target="_blank" class="contact-item-box">
+                                                <div class="contact-icon-box" style="background: linear-gradient(135deg, #A6CE39 0%, #2b8200 100%);">
+                                                    <i class="fa-brands fa-orcid"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold">ORCID Researcher Record</div>
+                                                    <div class="text-muted small">Verified Academic Profile <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                                </div>
+                                            </a>
+                                        }
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Academic & Scholarly Focus -->
-                <div class="col-lg-5" data-aos="fade-left">
-                    <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-direction-column justify-content-between">
-                        <div>
-                            <h3 class="h4 fw-bold mb-3 text-gradient-purple">Research & Scholarly Profiles</h3>
-                            <p class="text-muted small mb-4">
-                                Dedicated to publishing peer-reviewed research, advancing technological discoveries, and collaborating with global scholars.
-                            </p>
-
-                            <div class="d-flex flex-column gap-3 mb-4">
-                                @if (!string.IsNullOrWhiteSpace(personal.googleScholarUrl))
-                                {
-                                    <a href="@personal.googleScholarUrl" target="_blank" class="contact-item-box">
-                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);">
-                                            <i class="fa-solid fa-graduation-cap"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-bold">Google Scholar Profile</div>
-                                            <div class="text-muted small">View Citations & Papers <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
-                                        </div>
-                                    </a>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(personal.orcidUrl))
-                                {
-                                    <a href="@personal.orcidUrl" target="_blank" class="contact-item-box">
-                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #A6CE39 0%, #2b8200 100%);">
-                                            <i class="fa-brands fa-orcid"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-bold">ORCID Researcher ID</div>
-                                            <div class="text-muted small">Verified Academic Record <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
-                                        </div>
-                                    </a>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(personal.linkedInUrl))
-                                {
-                                    <a href="@personal.linkedInUrl" target="_blank" class="contact-item-box">
-                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #0A66C2 0%, #004182 100%);">
-                                            <i class="fa-brands fa-linkedin-in"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="fw-bold">LinkedIn Network</div>
-                                            <div class="text-muted small">Professional Endorsements <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
-                                        </div>
-                                    </a>
-                                }
+                    }
+                    else if (hasSummary)
+                    {
+                        <!-- Single full-width summary card -->
+                        <div class="col-lg-10" data-aos="fade-up">
+                            <div class="glass-panel p-4 p-md-5">
+                                <h3 class="h4 fw-bold mb-3 text-gradient">Summary</h3>
+                                <p class="text-sub" style="font-size: 1.05rem; white-space: pre-line;">
+                                    @personal.professionalSummary
+                                </p>
                             </div>
                         </div>
-
-                        <div class="text-center pt-3 border-top border-secondary border-opacity-25">
-                            <span class="text-muted small">Let's collaborate on high-impact projects</span>
+                    }
+                    else if (hasAcademic)
+                    {
+                        <!-- Single academic profiles card -->
+                        <div class="col-lg-8" data-aos="fade-up">
+                            <div class="glass-panel p-4 p-md-5">
+                                <h3 class="h4 fw-bold mb-4 text-gradient-purple text-center">Research & Scholarly Profiles</h3>
+                                <div class="d-flex flex-column gap-3">
+                                    @if (hasScholar)
+                                    {
+                                        <a href="@personal.googleScholarUrl" target="_blank" class="contact-item-box">
+                                            <div class="contact-icon-box" style="background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);">
+                                                <i class="fa-solid fa-graduation-cap"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold">Google Scholar Profile</div>
+                                                <div class="text-muted small">View Citations & Publications <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                            </div>
+                                        </a>
+                                    }
+                                    @if (hasOrcid)
+                                    {
+                                        <a href="@personal.orcidUrl" target="_blank" class="contact-item-box">
+                                            <div class="contact-icon-box" style="background: linear-gradient(135deg, #A6CE39 0%, #2b8200 100%);">
+                                                <i class="fa-brands fa-orcid"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold">ORCID Researcher Record</div>
+                                                <div class="text-muted small">Verified Academic Profile <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                            </div>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    }
 
-    <!-- Work Experience Section -->
-    @if (experiences.Count > 0)
+    <!-- Work Experience Section (Only if experiences added) -->
+    @if (hasExperienceSection)
     {
         <section id="experience" class="py-5">
             <div class="container py-4">
                 <div class="text-center mb-5" data-aos="fade-up">
-                    <div class="section-badge"><i class="fa-solid fa-briefcase"></i> Career Journey</div>
+                    <div class="section-badge"><i class="fa-solid fa-briefcase"></i> Experience</div>
                     <h2 class="display-5 fw-bold">Work Experience</h2>
-                    <p class="text-muted">Proven track record of engineering leadership and technical execution.</p>
                 </div>
 
                 <div class="row justify-content-center">
@@ -1240,7 +1245,7 @@
                                                 @if (exp.isCurrentlyWorking)
                                                 {
                                                     <span class="badge rounded-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                                        <span class="status-dot me-1"></span> Current Role
+                                                        <span class="status-dot me-1"></span> Current
                                                     </span>
                                                 }
                                                 <span class="badge py-2 px-3 rounded-pill bg-dark border border-secondary border-opacity-25 font-mono text-muted">
@@ -1275,17 +1280,15 @@
         </section>
     }
 
-    <!-- Technical Skills Section -->
-    @if (skillsData.skills.Count > 0)
+    <!-- Technical Skills Section (Only if skills added) -->
+    @if (hasSkillsSection)
     {
         <section id="skills" class="py-5">
             <div class="container py-4">
                 <div class="text-center mb-5" data-aos="fade-up">
                     <div class="section-badge"><i class="fa-solid fa-microchip"></i> Capabilities</div>
-                    <h2 class="display-5 fw-bold">Technical Skills & Expertise</h2>
-                    <p class="text-muted">Mastered tools, engineering suites, and software stacks.</p>
+                    <h2 class="display-5 fw-bold">Skills & Proficiencies</h2>
 
-                    <!-- Category Filter Buttons -->
                     @if (skillsData.categories.Count > 1)
                     {
                         <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" id="skillFilterContainer">
@@ -1302,27 +1305,26 @@
                     @foreach (var skill in skillsData.skills)
                     {
                         string levelClass = "badge-advanced";
-                        int progressWidth = 80;
-                        string level = skill.proficiencyLevel?.ToLower() ?? "advanced";
+                        string level = skill.proficiencyLevel?.ToLower() ?? "";
 
-                        if (level.Contains("expert")) { levelClass = "badge-expert"; progressWidth = 95; }
-                        else if (level.Contains("advance")) { levelClass = "badge-advanced"; progressWidth = 85; }
-                        else if (level.Contains("inter")) { levelClass = "badge-intermediate"; progressWidth = 70; }
-                        else if (level.Contains("begin")) { levelClass = "badge-beginner"; progressWidth = 50; }
+                        if (level.Contains("expert")) { levelClass = "badge-expert"; }
+                        else if (level.Contains("advance")) { levelClass = "badge-advanced"; }
+                        else if (level.Contains("inter")) { levelClass = "badge-intermediate"; }
+                        else if (level.Contains("begin")) { levelClass = "badge-beginner"; }
 
                         <div class="col-sm-6 col-md-4 col-lg-3 skill-item cat-@skill.mstSkillCategoryId" data-aos="fade-up">
                             <div class="skill-card">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <span class="fw-bold text-white">@skill.skillName</span>
-                                    <span class="skill-badge @levelClass">@(string.IsNullOrWhiteSpace(skill.proficiencyLevel) ? "Advanced" : skill.proficiencyLevel)</span>
+                                    @if (!string.IsNullOrWhiteSpace(skill.proficiencyLevel))
+                                    {
+                                        <span class="skill-badge @levelClass">@skill.proficiencyLevel</span>
+                                    }
                                 </div>
-                                <div class="d-flex align-items-center justify-content-between text-muted" style="font-size: 0.75rem;">
-                                    <span>@skill.categoryName</span>
-                                    <span class="font-mono">@progressWidth%</span>
-                                </div>
-                                <div class="skill-progress">
-                                    <div class="skill-progress-bar" style="width: @progressWidth%;"></div>
-                                </div>
+                                @if (!string.IsNullOrWhiteSpace(skill.categoryName))
+                                {
+                                    <div class="text-muted small">@skill.categoryName</div>
+                                }
                             </div>
                         </div>
                     }
@@ -1331,21 +1333,19 @@
         </section>
     }
 
-    <!-- Featured Projects & CAD Section -->
-    @if (projects.Count > 0)
+    <!-- Featured Projects & CAD Section (Only if projects added) -->
+    @if (hasProjectsSection)
     {
         <section id="projects" class="py-5">
             <div class="container py-4">
                 <div class="text-center mb-5" data-aos="fade-up">
-                    <div class="section-badge"><i class="fa-solid fa-shapes"></i> Showcase</div>
-                    <h2 class="display-5 fw-bold">Featured Projects & CAD Assets</h2>
-                    <p class="text-muted">Engineering innovations, CAD prototypes, and full-stack software applications.</p>
+                    <div class="section-badge"><i class="fa-solid fa-shapes"></i> Portfolio</div>
+                    <h2 class="display-5 fw-bold">Projects & Work</h2>
 
-                    <!-- Tag Filter Buttons -->
                     @if (allTags.Count > 0)
                     {
                         <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" id="projectFilterContainer">
-                            <button class="filter-btn active" data-filter="all">All Projects</button>
+                            <button class="filter-btn active" data-filter="all">All</button>
                             @foreach (var tag in allTags)
                             {
                                 <button class="filter-btn" data-filter="@tag.ToLower().Replace(" ", "-")">@tag</button>
@@ -1370,7 +1370,7 @@
                                     else
                                     {
                                         <div class="project-placeholder-icon">
-                                            <i class="fa-solid @(hasCad ? "fa-cube" : "fa-laptop-code")"></i>
+                                            <i class="fa-solid @(hasCad ? "fa-cube" : "fa-layer-group")"></i>
                                         </div>
                                     }
 
@@ -1385,13 +1385,16 @@
                                 <div class="p-4 d-flex flex-column flex-grow-1 justify-content-between">
                                     <div>
                                         <h3 class="h5 fw-bold text-white mb-2">@proj.projectTitle</h3>
-                                        <p class="text-muted small mb-3" style="min-height: 48px; line-height: 1.5;">
-                                            @proj.description
-                                        </p>
+                                        @if (!string.IsNullOrWhiteSpace(proj.description))
+                                        {
+                                            <p class="text-muted small mb-3" style="line-height: 1.5;">
+                                                @proj.description
+                                            </p>
+                                        }
 
                                         @if (proj.tagsList != null && proj.tagsList.Count > 0)
                                         {
-                                            <div class="d-flex flex-wrap gap-1 mb-4">
+                                            <div class="d-flex flex-wrap gap-1 mb-3">
                                                 @foreach (var tag in proj.tagsList)
                                                 {
                                                     <span class="tag-pill">#@tag</span>
@@ -1400,11 +1403,11 @@
                                         }
                                     </div>
 
-                                    <div class="pt-3 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between gap-2">
-                                        @if (hasCad)
-                                        {
+                                    @if (hasCad)
+                                    {
+                                        <div class="pt-3 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between gap-2">
                                             <a href="@proj.cadFilePath" class="btn btn-sm btn-glass flex-grow-1 text-center" download title="Download CAD Model">
-                                                <i class="fa-solid fa-download me-1 text-info"></i> CAD File
+                                                <i class="fa-solid fa-download me-1 text-info"></i> Download CAD
                                             </a>
                                             <button class="btn btn-sm btn-gradient px-3 btn-preview-cad" 
                                                     data-title="@proj.projectTitle" 
@@ -1412,12 +1415,8 @@
                                                     title="Preview 3D Model">
                                                 <i class="fa-solid fa-cube me-1"></i> 3D View
                                             </button>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted small font-mono"><i class="fa-solid fa-code me-1 text-primary"></i>Project Asset</span>
-                                        }
-                                    </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -1427,21 +1426,19 @@
         </section>
     }
 
-    <!-- Certifications & Publications Section -->
-    @if (certifications.Count > 0 || publications.Count > 0)
+    <!-- Certifications & Publications Section (Only if added) -->
+    @if (hasCertificationsSection || hasPublicationsSection)
     {
         <section id="certifications" class="py-5">
             <div class="container py-4">
                 <div class="text-center mb-5" data-aos="fade-up">
                     <div class="section-badge"><i class="fa-solid fa-certificate"></i> Credentials</div>
-                    <h2 class="display-5 fw-bold">Certifications & Research Publications</h2>
-                    <p class="text-muted">Industry-certified competencies and peer-reviewed scholarly works.</p>
+                    <h2 class="display-5 fw-bold">Certifications & Research</h2>
                 </div>
 
-                <!-- Certifications Grid -->
-                @if (certifications.Count > 0)
+                @if (hasCertificationsSection)
                 {
-                    <h3 class="h4 fw-bold mb-4 text-white"><i class="fa-solid fa-award text-primary me-2"></i>Professional Certifications</h3>
+                    <h3 class="h4 fw-bold mb-4 text-white"><i class="fa-solid fa-award text-primary me-2"></i>Certifications</h3>
                     <div class="row g-4 mb-5">
                         @foreach (var cert in certifications)
                         {
@@ -1459,7 +1456,10 @@
                                         </div>
 
                                         <h4 class="h5 fw-bold text-white mb-1">@cert.name</h4>
-                                        <div class="text-gradient fw-semibold small mb-3">@cert.issuer</div>
+                                        @if (!string.IsNullOrWhiteSpace(cert.issuer))
+                                        {
+                                            <div class="text-gradient fw-semibold small mb-3">@cert.issuer</div>
+                                        }
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(cert.credentialLink))
@@ -1476,11 +1476,10 @@
                     </div>
                 }
 
-                <!-- Publications Grid -->
-                @if (publications.Count > 0)
+                @if (hasPublicationsSection)
                 {
                     <div id="publications" class="pt-3">
-                        <h3 class="h4 fw-bold mb-4 text-white"><i class="fa-solid fa-book-bookmark text-info me-2"></i>Research Publications</h3>
+                        <h3 class="h4 fw-bold mb-4 text-white"><i class="fa-solid fa-book-bookmark text-info me-2"></i>Publications</h3>
                         <div class="row g-4">
                             @foreach (var pub in publications)
                             {
@@ -1491,17 +1490,23 @@
                                         </div>
                                         <div class="flex-grow-1">
                                             <h4 class="h6 fw-bold text-white mb-1">@pub.title</h4>
-                                            <div class="text-info small mb-2">
-                                                <i class="fa-solid fa-building-columns me-1"></i>@pub.publisher
-                                                @if (!string.IsNullOrWhiteSpace(pub.publicationDate))
-                                                {
-                                                    <span class="text-muted ms-2">(@pub.publicationDate)</span>
-                                                }
-                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(pub.publisher) || !string.IsNullOrWhiteSpace(pub.publicationDate))
+                                            {
+                                                <div class="text-info small mb-2">
+                                                    @if (!string.IsNullOrWhiteSpace(pub.publisher))
+                                                    {
+                                                        <i class="fa-solid fa-building-columns me-1"></i>@pub.publisher
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(pub.publicationDate))
+                                                    {
+                                                        <span class="text-muted ms-2">(@pub.publicationDate)</span>
+                                                    }
+                                                </div>
+                                            }
                                             @if (!string.IsNullOrWhiteSpace(pub.publicationLink))
                                             {
                                                 <a href="@pub.publicationLink" target="_blank" class="text-gradient small text-decoration-none fw-semibold">
-                                                    Read Publication / DOI <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                                    Read Publication <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
                                                 </a>
                                             }
                                         </div>
@@ -1515,123 +1520,125 @@
         </section>
     }
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-5">
-        <div class="container py-4">
-            <div class="text-center mb-5" data-aos="fade-up">
-                <div class="section-badge"><i class="fa-solid fa-envelope"></i> Get In Touch</div>
-                <h2 class="display-5 fw-bold">Let's Build Something Exceptional</h2>
-                <p class="text-muted">Have a project, research inquiry, or career opportunity? Send a message directly.</p>
-            </div>
+    <!-- Contact Section (Only if contact information or message capability exists) -->
+    @if (hasContactSection)
+    {
+        <section id="contact" class="py-5">
+            <div class="container py-4">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <div class="section-badge"><i class="fa-solid fa-envelope"></i> Contact</div>
+                    <h2 class="display-5 fw-bold">Get In Touch</h2>
+                </div>
 
-            <div class="row gy-4 align-items-stretch justify-content-center">
-                <!-- Contact Direct Info -->
-                <div class="col-lg-5" data-aos="fade-right">
-                    <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
-                        <div>
-                            <h3 class="h4 fw-bold text-white mb-3">Contact Information</h3>
-                            <p class="text-muted mb-4">
-                                I am always open to discussing new engineering projects, CAD prototypes, publications, or collaborative opportunities.
-                            </p>
+                <div class="row gy-4 align-items-stretch justify-content-center">
+                    <!-- Contact Information Column -->
+                    <div class="col-lg-5" data-aos="fade-right">
+                        <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <h3 class="h4 fw-bold text-white mb-3">Direct Contact</h3>
 
-                            <div class="d-flex flex-column gap-3 mb-4">
-                                @if (!string.IsNullOrWhiteSpace(personal.email))
-                                {
-                                    <a href="mailto:@personal.email" class="contact-item-box" title="Click to Email">
-                                        <div class="contact-icon-box"><i class="fa-solid fa-envelope"></i></div>
-                                        <div>
-                                            <div class="text-muted small">Email Address</div>
-                                            <div class="fw-bold">@personal.email</div>
-                                        </div>
-                                    </a>
-                                }
+                                <div class="d-flex flex-column gap-3 mb-4">
+                                    @if (hasEmail)
+                                    {
+                                        <a href="mailto:@personal.email" class="contact-item-box" title="Click to Email">
+                                            <div class="contact-icon-box"><i class="fa-solid fa-envelope"></i></div>
+                                            <div>
+                                                <div class="text-muted small">Email</div>
+                                                <div class="fw-bold">@personal.email</div>
+                                            </div>
+                                        </a>
+                                    }
 
-                                @if (!string.IsNullOrWhiteSpace(personal.mobileNumber))
-                                {
-                                    <a href="tel:@personal.mobileNumber" class="contact-item-box" title="Click to Call">
-                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
-                                            <i class="fa-solid fa-phone"></i>
-                                        </div>
-                                        <div>
-                                            <div class="text-muted small">Direct Line</div>
-                                            <div class="fw-bold">@personal.mobileNumber</div>
-                                        </div>
-                                    </a>
-                                }
+                                    @if (hasMobile)
+                                    {
+                                        <a href="tel:@personal.mobileNumber" class="contact-item-box" title="Click to Call">
+                                            <div class="contact-icon-box" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
+                                                <i class="fa-solid fa-phone"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-muted small">Phone</div>
+                                                <div class="fw-bold">@personal.mobileNumber</div>
+                                            </div>
+                                        </a>
+                                    }
 
-                                @if (!string.IsNullOrWhiteSpace(personal.location))
-                                {
-                                    <div class="contact-item-box">
-                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
-                                            <i class="fa-solid fa-location-dot"></i>
+                                    @if (hasLocation)
+                                    {
+                                        <div class="contact-item-box">
+                                            <div class="contact-icon-box" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+                                                <i class="fa-solid fa-location-dot"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-muted small">Location</div>
+                                                <div class="fw-bold">@personal.location</div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div class="text-muted small">Location</div>
-                                            <div class="fw-bold">@personal.location</div>
-                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (hasAnySocial)
+                            {
+                                <div class="pt-4 border-top border-secondary border-opacity-25">
+                                    <div class="text-muted small mb-2 font-mono">Profiles:</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @if (hasLinkedIn)
+                                        {
+                                            <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                                        }
+                                        @if (hasGitHub)
+                                        {
+                                            <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                                        }
+                                        @if (hasScholar)
+                                        {
+                                            <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                                        }
+                                        @if (hasOrcid)
+                                        {
+                                            <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID"><i class="fa-brands fa-orcid"></i></a>
+                                        }
                                     </div>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="pt-4 border-top border-secondary border-opacity-25">
-                            <div class="text-muted small mb-2 font-mono">Social & Scholarly Networks:</div>
-                            <div class="d-flex flex-wrap gap-2">
-                                @if (!string.IsNullOrWhiteSpace(personal.linkedInUrl))
-                                {
-                                    <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(personal.gitHubUrl))
-                                {
-                                    <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(personal.googleScholarUrl))
-                                {
-                                    <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(personal.orcidUrl))
-                                {
-                                    <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID"><i class="fa-brands fa-orcid"></i></a>
-                                }
-                            </div>
+                                </div>
+                            }
                         </div>
                     </div>
-                </div>
 
-                <!-- Interactive Contact Form -->
-                <div class="col-lg-7" data-aos="fade-left">
-                    <div class="glass-panel p-4 p-md-5 h-100">
-                        <h3 class="h4 fw-bold text-white mb-2">Send a Message</h3>
-                        <p class="text-muted small mb-4">Fill out the form below to initiate an inquiry directly.</p>
+                    <!-- Contact Form Column -->
+                    <div class="col-lg-7" data-aos="fade-left">
+                        <div class="glass-panel p-4 p-md-5 h-100">
+                            <h3 class="h4 fw-bold text-white mb-2">Send a Message</h3>
+                            <p class="text-muted small mb-4">Feel free to reach out directly through this form.</p>
 
-                        <form id="contactForm">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small fw-semibold">Your Name *</label>
-                                    <input type="text" id="contactName" class="form-control form-control-glass" placeholder="John Doe" required />
+                            <form id="contactForm">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-semibold">Your Name *</label>
+                                        <input type="text" id="contactName" class="form-control form-control-glass" placeholder="Your Name" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-semibold">Your Email *</label>
+                                        <input type="email" id="contactEmail" class="form-control form-control-glass" placeholder="Your Email" required />
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-muted small fw-semibold">Your Email *</label>
-                                    <input type="email" id="contactEmail" class="form-control form-control-glass" placeholder="john@example.com" required />
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-semibold">Subject</label>
+                                    <input type="text" id="contactSubject" class="form-control form-control-glass" placeholder="Subject" />
                                 </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-semibold">Subject</label>
-                                <input type="text" id="contactSubject" class="form-control form-control-glass" placeholder="Engineering Project / Collaboration" />
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label text-muted small fw-semibold">Message *</label>
-                                <textarea id="contactMessage" rows="4" class="form-control form-control-glass" placeholder="Hello Balaji, I would like to discuss..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn-gradient w-100 justify-content-center py-3">
-                                <i class="fa-solid fa-paper-plane me-2"></i> Send Message
-                            </button>
-                        </form>
+                                <div class="mb-4">
+                                    <label class="form-label text-muted small fw-semibold">Message *</label>
+                                    <textarea id="contactMessage" rows="4" class="form-control form-control-glass" placeholder="Write your message here..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn-gradient w-100 justify-content-center py-3">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> Send Message
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    }
 
     <!-- 3D CAD Preview Interactive Modal -->
     <div class="modal fade" id="cadModal" tabindex="-1" aria-labelledby="cadModalLabel" aria-hidden="true">
@@ -1661,7 +1668,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-3 px-2">
-                        <span class="text-muted small"><i class="fa-solid fa-hand-pointer me-1"></i> Left-click & drag to orbit • Scroll to zoom</span>
+                        <span class="text-muted small"><i class="fa-solid fa-hand-pointer me-1"></i> Orbit: Left-click & drag • Zoom: Scroll</span>
                         <a id="btnDownloadCadModal" href="#" class="btn btn-sm btn-gradient" download>
                             <i class="fa-solid fa-download me-1"></i> Download CAD
                         </a>
@@ -1772,7 +1779,7 @@
             const ctx = canvas.getContext('2d');
             let width, height;
             let particles = [];
-            const particleCount = 45;
+            const particleCount = 40;
 
             function resize() {
                 width = canvas.width = window.innerWidth;
@@ -1788,7 +1795,7 @@
                     vx: (Math.random() - 0.5) * 0.4,
                     vy: (Math.random() - 0.5) * 0.4,
                     size: Math.random() * 2 + 1,
-                    alpha: Math.random() * 0.5 + 0.2
+                    alpha: Math.random() * 0.4 + 0.15
                 });
             }
 
@@ -1816,7 +1823,7 @@
                         let dy = p.y - p2.y;
                         let dist = Math.sqrt(dx * dx + dy * dy);
                         if (dist < 130) {
-                            ctx.strokeStyle = `rgba(99, 102, 241, ${(1 - dist / 130) * 0.15})`;
+                            ctx.strokeStyle = `rgba(99, 102, 241, ${(1 - dist / 130) * 0.12})`;
                             ctx.lineWidth = 0.8;
                             ctx.beginPath();
                             ctx.moveTo(p.x, p.y);
@@ -1850,7 +1857,6 @@
             cadRenderer.setSize(rect.width, rect.height);
             cadRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            // Ambient & Directional Lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
             cadScene.add(ambientLight);
 
@@ -1862,17 +1868,15 @@
             dirLight2.position.set(-5, -5, -5);
             cadScene.add(dirLight2);
 
-            // Grid helper
             const gridHelper = new THREE.GridHelper(10, 20, 0x6366f1, 0x1e293b);
             gridHelper.position.y = -1.2;
             cadScene.add(gridHelper);
 
-            // Orbit controls
             cadControls = new THREE.OrbitControls(cadCamera, cadRenderer.domElement);
             cadControls.enableDamping = true;
             cadControls.dampingFactor = 0.05;
 
-            // Generate an elegant procedural CAD prototype geometry (Toroidal Geartrain / Engineering Core)
+            // Procedural engineering geometry for CAD preview
             const geometry = new THREE.TorusKnotGeometry(1, 0.32, 128, 32);
             const material = new THREE.MeshStandardMaterial({
                 color: 0x06b6d4,
@@ -1894,7 +1898,6 @@
             }
             renderCad();
 
-            // Handle Resize
             window.addEventListener('resize', () => {
                 if (!container || !cadRenderer) return;
                 const r = container.getBoundingClientRect();
@@ -1904,7 +1907,6 @@
             });
         }
 
-        // CAD Preview Buttons Click
         document.querySelectorAll('.btn-preview-cad').forEach(btn => {
             btn.addEventListener('click', function() {
                 const title = this.getAttribute('data-title') || 'CAD Model Preview';
@@ -1929,7 +1931,6 @@
             });
         });
 
-        // Toolbar Buttons
         document.getElementById('btnToggleRotate')?.addEventListener('click', function() {
             isRotating = !isRotating;
             this.classList.toggle('active', isRotating);
@@ -1949,7 +1950,7 @@
             }
         });
 
-        // Contact Form Handling (Generates Mailto & Friendly Feedback)
+        // Contact Form Handling (Uses real personal email when available)
         document.getElementById('contactForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('contactName').value;
@@ -1957,12 +1958,14 @@
             const subject = document.getElementById('contactSubject').value || 'Portfolio Contact Inquiry';
             const message = document.getElementById('contactMessage').value;
 
-            const targetEmail = '@(string.IsNullOrWhiteSpace(personal.email) ? "contact@balajiportfolio.com" : personal.email)';
-            const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent("Name: " + name + "\nEmail: " + email + "\n\nMessage:\n" + message)}`;
-            
-            window.location.href = mailtoUrl;
-
-            alert("Thank you! Your email client has been opened with your inquiry. Looking forward to connecting!");
+            const targetEmail = '@(hasEmail ? personal.email : "")';
+            if (targetEmail) {
+                const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent("Name: " + name + "\nEmail: " + email + "\n\nMessage:\n" + message)}`;
+                window.location.href = mailtoUrl;
+                alert("Thank you! Your email client has been opened with your inquiry.");
+            } else {
+                alert("Thank you for your message, " + name + "! Message captured.");
+            }
             this.reset();
         });
     </script>
