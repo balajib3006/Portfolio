@@ -11,5 +11,11 @@ namespace BalajiPortfolio.Data
         }
 
         public DbSet<mstPersonal> MstPersonals { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<mstPersonal>().ToTable("mstpersonal");
+        }
     }
 }
