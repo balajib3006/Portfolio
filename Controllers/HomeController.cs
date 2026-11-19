@@ -15,7 +15,7 @@ namespace BalajiPortfolio.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Portfolio", "Website");
         }
 
         public IActionResult Privacy()

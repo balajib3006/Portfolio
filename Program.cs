@@ -50,6 +50,7 @@ namespace BalajiPortfolio
             builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
             builder.Services.AddScoped<ICertificationRepository, CertificationRepository>();
             builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
+            builder.Services.AddScoped<IWebsiteRepository, WebsiteRepository>();
             #endregion
 
             var app = builder.Build();

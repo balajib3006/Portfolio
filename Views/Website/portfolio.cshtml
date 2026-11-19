@@ -1,5 +1,1970 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model BalajiPortfolio.Models.DTO.PortfolioViewModel
 @{
+    Layout = null;
+    var personal = Model?.Personal ?? new BalajiPortfolio.Models.DTO.PersonalDTO();
+    var experiences = Model?.Experiences ?? new List<BalajiPortfolio.Models.DTO.ExperienceDTO>();
+    var skillsData = Model?.SkillsData ?? new BalajiPortfolio.Models.DTO.SkillsPageDTO();
+    var projects = Model?.Projects ?? new List<BalajiPortfolio.Models.DTO.ProjectDTO>();
+    var certifications = Model?.Certifications ?? new List<BalajiPortfolio.Models.DTO.CertificationDTO>();
+    var publications = Model?.Publications ?? new List<BalajiPortfolio.Models.DTO.PublicationDTO>();
+
+    string displayName = !string.IsNullOrWhiteSpace(personal.name) ? personal.name : "Balaji";
+    string initials = !string.IsNullOrWhiteSpace(personal.name) 
+        ? string.Join("", personal.name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0])).ToUpper()
+        : "B";
+    if (initials.Length > 2) initials = initials.Substring(0, 2);
+
+    string displayBio = !string.IsNullOrWhiteSpace(personal.bio) 
+        ? personal.bio 
+        : "Engineer • Developer • Innovator";
+
+    string displaySummary = !string.IsNullOrWhiteSpace(personal.professionalSummary) 
+        ? personal.professionalSummary 
+        : "Passionate engineer dedicated to crafting high-performance systems, robust applications, and innovative designs from concept through delivery.";
+
+    int totalProjects = !string.IsNullOrWhiteSpace(personal.projectsCompleted) && int.TryParse(personal.projectsCompleted, out int pc) 
+        ? pc 
+        : (projects.Count > 0 ? projects.Count : 12);
+
+    string expYears = !string.IsNullOrWhiteSpace(personal.yearsOfExperience) 
+        ? personal.yearsOfExperience 
+        : "3+";
+
+    int totalCompanies = !string.IsNullOrWhiteSpace(personal.companiesWorked) && int.TryParse(personal.companiesWorked, out int cw) 
+        ? cw 
+        : (experiences.Count > 0 ? experiences.Count : 4);
+
+    int totalCredentials = certifications.Count + publications.Count;
+
+    // Distinct project tags
+    var allTags = projects
+        .SelectMany(p => p.tagsList ?? new List<string>())
+        .Where(t => !string.IsNullOrWhiteSpace(t))
+        .Distinct()
+        .ToList();
 }
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@displayName — Portfolio & Engineering Showcase</title>
+    <meta name="description" content="@displayName's Engineering Portfolio showcasing projects, CAD designs, research, and technical expertise." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap 5.3 & FontAwesome -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- AOS (Animate on Scroll) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+
+    <style>
+        :root {
+            --bg-canvas: #090d16;
+            --bg-surface: #0f172a;
+            --bg-card: rgba(17, 24, 39, 0.72);
+            --bg-card-hover: rgba(30, 41, 59, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(99, 102, 241, 0.3);
+            
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #06b6d4;
+            --accent-purple: #a855f7;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-sub: #cbd5e1;
+
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+            --gradient-card: linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+            --gradient-glow: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+
+        * {
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+            line-height: 1.65;
+            position: relative;
+        }
+
+        /* Ambient Glow & Canvas */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.55;
+        }
+
+        .ambient-sphere {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.18;
+            animation: floatGlow 18s ease-in-out infinite alternate;
+        }
+
+        .ambient-sphere-1 {
+            width: 500px;
+            height: 500px;
+            top: -100px;
+            left: -100px;
+            background: #4f46e5;
+        }
+
+        .ambient-sphere-2 {
+            width: 600px;
+            height: 600px;
+            bottom: 10%;
+            right: -150px;
+            background: #06b6d4;
+            animation-duration: 22s;
+        }
+
+        .ambient-sphere-3 {
+            width: 400px;
+            height: 400px;
+            top: 40%;
+            left: 45%;
+            background: #8b5cf6;
+            animation-duration: 26s;
+        }
+
+        @@keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, 60px) scale(1.1); }
+            100% { transform: translate(-30px, 30px) scale(0.95); }
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.4), 0 0 24px -6px rgba(99, 102, 241, 0.25);
+            transform: translateY(-4px);
+        }
+
+        /* Typography & Headers */
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.02em;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .text-gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-purple {
+            background: linear-gradient(135deg, #c084fc 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: rgba(99, 102, 241, 0.12);
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            margin-bottom: 14px;
+        }
+
+        /* Navbar */
+        .portfolio-nav {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(94%, 1240px);
+            z-index: 1050;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            padding: 10px 24px;
+            transition: all 0.3s ease;
+        }
+
+        .portfolio-nav.scrolled {
+            top: 10px;
+            background: rgba(11, 15, 25, 0.94);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .nav-logo-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-link-custom {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-gradient {
+            background: var(--gradient-primary);
+            color: #ffffff;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-gradient:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.45);
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-main);
+            border: 1px solid var(--border-glass);
+            padding: 9px 20px;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding-top: 150px;
+            padding-bottom: 70px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--accent-emerald);
+            display: inline-block;
+            box-shadow: 0 0 10px var(--accent-emerald);
+            animation: pulseDot 2s infinite;
+        }
+
+        @@keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.3); }
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+
+        .avatar-glow {
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            opacity: 0.7;
+            filter: blur(14px);
+            z-index: 0;
+            animation: rotateGlow 12s linear infinite;
+        }
+
+        @@keyframes rotateGlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .avatar-img {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #1e293b;
+            background: #1e293b;
+        }
+
+        .avatar-fallback {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #1e293b;
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'Space Grotesk', sans-serif;
+            text-shadow: 0 4px 18px rgba(99, 102, 241, 0.5);
+        }
+
+        .floating-badge {
+            position: absolute;
+            z-index: 2;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            animation: floatBadge 4s ease-in-out infinite alternate;
+        }
+
+        .floating-badge-1 {
+            top: 20px;
+            left: -20px;
+        }
+
+        .floating-badge-2 {
+            bottom: 25px;
+            right: -25px;
+            animation-delay: 2s;
+        }
+
+        @@keyframes floatBadge {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-8px); }
+        }
+
+        /* Stats Strip */
+        .stat-card {
+            padding: 22px;
+            border-radius: 18px;
+            background: rgba(17, 24, 39, 0.6);
+            border: 1px solid var(--border-glass);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            opacity: 0.8;
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 6px;
+        }
+
+        /* Social Icons Pill */
+        .social-link {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            color: #ffffff;
+            background: var(--primary);
+            border-color: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        /* Timeline / Experience */
+        .timeline-container {
+            position: relative;
+            padding-left: 28px;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: linear-gradient(180deg, #6366f1 0%, #06b6d4 50%, rgba(255, 255, 255, 0.1) 100%);
+        }
+
+        .timeline-node {
+            position: relative;
+            margin-bottom: 38px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -28px;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bg-canvas);
+            border: 3px solid var(--primary-light);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+            z-index: 2;
+        }
+
+        .timeline-node.current .timeline-dot {
+            border-color: var(--accent-emerald);
+            box-shadow: 0 0 12px var(--accent-emerald);
+            background: var(--accent-emerald);
+        }
+
+        /* Skills Matrix */
+        .skill-card {
+            padding: 18px 20px;
+            border-radius: 14px;
+            background: rgba(17, 24, 39, 0.5);
+            border: 1px solid var(--border-glass);
+            transition: all 0.25s ease;
+        }
+
+        .skill-card:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .skill-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-expert {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-advanced {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .badge-intermediate {
+            background: rgba(6, 182, 212, 0.15);
+            color: #67e8f9;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .badge-beginner {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .skill-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .skill-progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            background: var(--gradient-primary);
+            transition: width 1s ease-in-out;
+        }
+
+        /* Filter Pills */
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: 1px solid var(--border-glass);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            color: #ffffff;
+            background: rgba(99, 102, 241, 0.25);
+            border-color: var(--primary-light);
+        }
+
+        /* Projects & CAD */
+        .project-card {
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 25px rgba(6, 182, 212, 0.2);
+        }
+
+        .project-thumb-box {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+        }
+
+        .project-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .project-card:hover .project-img {
+            transform: scale(1.06);
+        }
+
+        .project-placeholder-icon {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: rgba(99, 102, 241, 0.4);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+
+        .cad-badge-floating {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(6, 182, 212, 0.85);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+        }
+
+        .tag-pill {
+            font-size: 0.74rem;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-sub);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* 3D CAD Modal Canvas */
+        #cadViewerContainer {
+            width: 100%;
+            height: 420px;
+            background: radial-gradient(circle at center, #1e293b 0%, #0a0f1d 100%);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cadCanvas {
+            width: 100% !important;
+            height: 100% !important;
+            outline: none;
+        }
+
+        .cad-toolbar {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: 9999px;
+            padding: 6px 14px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .cad-btn-tool {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 0.82rem;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cad-btn-tool:hover, .cad-btn-tool.active {
+            background: rgba(99, 102, 241, 0.4);
+            color: #67e8f9;
+        }
+
+        /* Certifications & Publications */
+        .credential-card {
+            border-radius: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            padding: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .credential-card:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .pub-paper-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* Contact Section */
+        .contact-item-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 20px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .contact-item-box:hover {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: #ffffff;
+            transform: translateX(4px);
+        }
+
+        .contact-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--gradient-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Form Inputs */
+        .form-control-glass {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: #ffffff;
+            padding: 12px 18px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-glass:focus {
+            background: rgba(15, 23, 42, 0.85);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.3);
+            color: #ffffff;
+        }
+
+        .form-control-glass::placeholder {
+            color: #64748b;
+        }
+
+        /* Footer */
+        .portfolio-footer {
+            border-top: 1px solid var(--border-glass);
+            padding: 50px 0 30px;
+            background: rgba(7, 10, 18, 0.9);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Back to top */
+        .btn-top {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-glass);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-top:hover {
+            background: var(--primary);
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Responsive Fixes */
+        @@media (max-width: 991.98px) {
+            .portfolio-nav {
+                border-radius: 18px;
+                padding: 12px 20px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .nav-links.mobile-open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(11, 15, 25, 0.98);
+                border: 1px solid var(--border-glass);
+                border-radius: 18px;
+                padding: 16px;
+                gap: 8px;
+            }
+            .hero-section {
+                padding-top: 120px;
+                text-align: center;
+            }
+            .avatar-wrapper {
+                margin-top: 40px;
+                width: 260px;
+                height: 260px;
+            }
+            .timeline-container {
+                padding-left: 20px;
+            }
+            .timeline-dot {
+                left: -20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Glowing Spheres & Dynamic Background Canvas -->
+    <canvas id="bgCanvas"></canvas>
+    <div class="ambient-sphere ambient-sphere-1"></div>
+    <div class="ambient-sphere ambient-sphere-2"></div>
+    <div class="ambient-sphere ambient-sphere-3"></div>
+
+    <!-- Floating Glass Navbar -->
+    <nav class="portfolio-nav" id="mainNav">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="#hero" class="nav-logo">
+                <div class="nav-logo-badge">@initials</div>
+                <span>@displayName</span>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <ul class="nav-links" id="navLinksList">
+                <li><a href="#about" class="nav-link-custom">About</a></li>
+                @if (experiences.Count > 0)
+                {
+                    <li><a href="#experience" class="nav-link-custom">Experience</a></li>
+                }
+                @if (skillsData.skills.Count > 0)
+                {
+                    <li><a href="#skills" class="nav-link-custom">Skills</a></li>
+                }
+                @if (projects.Count > 0)
+                {
+                    <li><a href="#projects" class="nav-link-custom">Projects</a></li>
+                }
+                @if (certifications.Count > 0)
+                {
+                    <li><a href="#certifications" class="nav-link-custom">Certifications</a></li>
+                }
+                @if (publications.Count > 0)
+                {
+                    <li><a href="#publications" class="nav-link-custom">Publications</a></li>
+                }
+                <li><a href="#contact" class="nav-link-custom">Contact</a></li>
+            </ul>
+
+            <!-- Nav Action Buttons -->
+            <div class="d-flex align-items-center gap-2">
+                <a href="#contact" class="btn-gradient d-none d-sm-inline-flex">
+                    <i class="fa-solid fa-paper-plane"></i> Contact
+                </a>
+                <a href="/Dashboard" title="Admin Portal" class="btn-glass" target="_blank">
+                    <i class="fa-solid fa-gauge-high"></i> <span class="d-none d-md-inline">Admin</span>
+                </a>
+                <button class="btn btn-sm btn-glass d-lg-none" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section">
+        <div class="container">
+            <div class="row align-items-center gy-5">
+                <!-- Hero Left Info -->
+                <div class="col-lg-7" data-aos="fade-up" data-aos-duration="900">
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);">
+                        <span class="status-dot"></span>
+                        <span style="font-size: 0.82rem; font-weight: 600; color: #34d399;">Available for Opportunities & Projects</span>
+                    </div>
+
+                    <h1 class="display-3 fw-bold mb-2">
+                        Hi, I'm <span class="text-gradient">@displayName</span>
+                    </h1>
+                    
+                    <h2 class="h3 fw-semibold text-gradient-purple mb-3">
+                        @displayBio
+                    </h2>
+
+                    <p class="lead text-muted mb-4" style="max-width: 600px; font-size: 1.1rem;">
+                        @displaySummary
+                    </p>
+
+                    <!-- Quick Metadata Pills -->
+                    <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center justify-content-lg-start">
+                        @if (!string.IsNullOrWhiteSpace(personal.location))
+                        {
+                            <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
+                                <i class="fa-solid fa-location-dot text-primary me-2"></i>@personal.location
+                            </span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(personal.workDetails))
+                        {
+                            <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
+                                <i class="fa-solid fa-briefcase text-info me-2"></i>@personal.workDetails
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Call to Actions -->
+                    <div class="d-flex flex-wrap gap-3 mb-5 justify-content-center justify-content-lg-start">
+                        <a href="#projects" class="btn-gradient">
+                            <i class="fa-solid fa-shapes"></i> Explore Portfolio
+                        </a>
+                        <a href="#contact" class="btn-glass">
+                            <i class="fa-solid fa-envelope"></i> Get in Touch
+                        </a>
+                        @if (!string.IsNullOrWhiteSpace(personal.email))
+                        {
+                            <a href="mailto:@personal.email" class="btn-glass" title="Email Direct">
+                                <i class="fa-solid fa-at"></i> Email Me
+                            </a>
+                        }
+                    </div>
+
+                    <!-- Social / Academic Icons -->
+                    <div class="d-flex align-items-center gap-2 justify-content-center justify-content-lg-start">
+                        <span class="text-muted small me-2 font-mono">Connect:</span>
+                        @if (!string.IsNullOrWhiteSpace(personal.linkedInUrl))
+                        {
+                            <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(personal.gitHubUrl))
+                        {
+                            <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(personal.gitLabUrl))
+                        {
+                            <a href="@personal.gitLabUrl" target="_blank" class="social-link" title="GitLab"><i class="fa-brands fa-gitlab"></i></a>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(personal.googleScholarUrl))
+                        {
+                            <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(personal.orcidUrl))
+                        {
+                            <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID Profile"><i class="fa-brands fa-orcid"></i></a>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(personal.mobileNumber))
+                        {
+                            <a href="tel:@personal.mobileNumber" class="social-link" title="Call Me"><i class="fa-solid fa-phone"></i></a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Hero Right: Avatar & Floating Badges -->
+                <div class="col-lg-5" data-aos="zoom-in" data-aos-duration="1000">
+                    <div class="avatar-wrapper">
+                        <div class="avatar-glow"></div>
+                        @if (!string.IsNullOrWhiteSpace(personal.profilePictureUrl))
+                        {
+                            <img src="@personal.profilePictureUrl" alt="@displayName" class="avatar-img" />
+                        }
+                        else
+                        {
+                            <div class="avatar-fallback">@initials</div>
+                        }
+
+                        <!-- Floating Badges -->
+                        <div class="floating-badge floating-badge-1">
+                            <i class="fa-solid fa-cube text-info fs-5"></i>
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.85rem;">CAD & 3D Assets</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">STEP / IGES Models</div>
+                            </div>
+                        </div>
+
+                        <div class="floating-badge floating-badge-2">
+                            <i class="fa-solid fa-microchip text-primary fs-5"></i>
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.85rem;">Engineering & Code</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Full-Stack Solutions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Ribbon -->
+            <div class="row g-3 mt-5 pt-3" data-aos="fade-up" data-aos-duration="800">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">@expYears</div>
+                        <div class="stat-label">Years of Experience</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">@totalProjects+</div>
+                        <div class="stat-label">Projects Completed</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">@totalCompanies+</div>
+                        <div class="stat-label">Companies / Clients</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <div class="stat-number">@(totalCredentials > 0 ? totalCredentials.ToString() : "10+")</div>
+                        <div class="stat-label">Certs & Publications</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <div class="section-badge"><i class="fa-solid fa-user"></i> About Me</div>
+                <h2 class="display-5 fw-bold">Engineering Journey & Vision</h2>
+                <p class="text-muted" style="max-width: 620px; margin: 0 auto;">Combining technical precision, mechanical insight, and modern software engineering.</p>
+            </div>
+
+            <div class="row gy-4 align-items-stretch">
+                <!-- Summary Card -->
+                <div class="col-lg-7" data-aos="fade-right">
+                    <div class="glass-panel p-4 p-md-5 h-100">
+                        <h3 class="h4 fw-bold mb-3 text-gradient">Professional Summary</h3>
+                        <p class="text-sub" style="font-size: 1.05rem; white-space: pre-line;">
+                            @displaySummary
+                        </p>
+                        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="stat-icon-sm text-primary fs-4"><i class="fa-solid fa-bullseye"></i></div>
+                                        <div>
+                                            <div class="text-muted small">Specialization</div>
+                                            <div class="fw-semibold">Design, CAD & Development</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="stat-icon-sm text-info fs-4"><i class="fa-solid fa-layer-group"></i></div>
+                                        <div>
+                                            <div class="text-muted small">Methodology</div>
+                                            <div class="fw-semibold">Agile & Cross-functional</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic & Scholarly Focus -->
+                <div class="col-lg-5" data-aos="fade-left">
+                    <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-direction-column justify-content-between">
+                        <div>
+                            <h3 class="h4 fw-bold mb-3 text-gradient-purple">Research & Scholarly Profiles</h3>
+                            <p class="text-muted small mb-4">
+                                Dedicated to publishing peer-reviewed research, advancing technological discoveries, and collaborating with global scholars.
+                            </p>
+
+                            <div class="d-flex flex-column gap-3 mb-4">
+                                @if (!string.IsNullOrWhiteSpace(personal.googleScholarUrl))
+                                {
+                                    <a href="@personal.googleScholarUrl" target="_blank" class="contact-item-box">
+                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #4285F4 0%, #34A853 100%);">
+                                            <i class="fa-solid fa-graduation-cap"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold">Google Scholar Profile</div>
+                                            <div class="text-muted small">View Citations & Papers <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                        </div>
+                                    </a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(personal.orcidUrl))
+                                {
+                                    <a href="@personal.orcidUrl" target="_blank" class="contact-item-box">
+                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #A6CE39 0%, #2b8200 100%);">
+                                            <i class="fa-brands fa-orcid"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold">ORCID Researcher ID</div>
+                                            <div class="text-muted small">Verified Academic Record <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                        </div>
+                                    </a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(personal.linkedInUrl))
+                                {
+                                    <a href="@personal.linkedInUrl" target="_blank" class="contact-item-box">
+                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #0A66C2 0%, #004182 100%);">
+                                            <i class="fa-brands fa-linkedin-in"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold">LinkedIn Network</div>
+                                            <div class="text-muted small">Professional Endorsements <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i></div>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="text-center pt-3 border-top border-secondary border-opacity-25">
+                            <span class="text-muted small">Let's collaborate on high-impact projects</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Work Experience Section -->
+    @if (experiences.Count > 0)
+    {
+        <section id="experience" class="py-5">
+            <div class="container py-4">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <div class="section-badge"><i class="fa-solid fa-briefcase"></i> Career Journey</div>
+                    <h2 class="display-5 fw-bold">Work Experience</h2>
+                    <p class="text-muted">Proven track record of engineering leadership and technical execution.</p>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="timeline-container">
+                            @foreach (var exp in experiences)
+                            {
+                                <div class="timeline-node @(exp.isCurrentlyWorking ? "current" : "")" data-aos="fade-up">
+                                    <div class="timeline-dot"></div>
+                                    <div class="glass-panel p-4">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                            <div>
+                                                <h3 class="h5 fw-bold mb-1 text-white">@exp.jobTitle</h3>
+                                                <div class="text-gradient fw-semibold">
+                                                    @exp.company
+                                                    @if (!string.IsNullOrWhiteSpace(exp.location))
+                                                    {
+                                                        <span class="text-muted fw-normal ms-2 small"><i class="fa-solid fa-location-dot me-1"></i>@exp.location</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if (exp.isCurrentlyWorking)
+                                                {
+                                                    <span class="badge rounded-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                                                        <span class="status-dot me-1"></span> Current Role
+                                                    </span>
+                                                }
+                                                <span class="badge py-2 px-3 rounded-pill bg-dark border border-secondary border-opacity-25 font-mono text-muted">
+                                                    @exp.startDate — @(exp.isCurrentlyWorking ? "Present" : exp.endDate)
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        @if (exp.responsibilitiesList != null && exp.responsibilitiesList.Count > 0)
+                                        {
+                                            <ul class="list-unstyled mt-3 mb-0 text-sub" style="font-size: 0.95rem;">
+                                                @foreach (var resp in exp.responsibilitiesList)
+                                                {
+                                                    <li class="d-flex align-items-start gap-2 mb-2">
+                                                        <i class="fa-solid fa-circle-check text-info mt-1 small"></i>
+                                                        <span>@resp</span>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(exp.responsibilities))
+                                        {
+                                            <p class="text-sub mt-3 mb-0" style="white-space: pre-line;">@exp.responsibilities</p>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+    <!-- Technical Skills Section -->
+    @if (skillsData.skills.Count > 0)
+    {
+        <section id="skills" class="py-5">
+            <div class="container py-4">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <div class="section-badge"><i class="fa-solid fa-microchip"></i> Capabilities</div>
+                    <h2 class="display-5 fw-bold">Technical Skills & Expertise</h2>
+                    <p class="text-muted">Mastered tools, engineering suites, and software stacks.</p>
+
+                    <!-- Category Filter Buttons -->
+                    @if (skillsData.categories.Count > 1)
+                    {
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" id="skillFilterContainer">
+                            <button class="filter-btn active" data-filter="all">All Skills</button>
+                            @foreach (var cat in skillsData.categories)
+                            {
+                                <button class="filter-btn" data-filter="cat-@cat.mstSkillCategoryId">@cat.categoryName</button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="row g-3" id="skillsGrid">
+                    @foreach (var skill in skillsData.skills)
+                    {
+                        string levelClass = "badge-advanced";
+                        int progressWidth = 80;
+                        string level = skill.proficiencyLevel?.ToLower() ?? "advanced";
+
+                        if (level.Contains("expert")) { levelClass = "badge-expert"; progressWidth = 95; }
+                        else if (level.Contains("advance")) { levelClass = "badge-advanced"; progressWidth = 85; }
+                        else if (level.Contains("inter")) { levelClass = "badge-intermediate"; progressWidth = 70; }
+                        else if (level.Contains("begin")) { levelClass = "badge-beginner"; progressWidth = 50; }
+
+                        <div class="col-sm-6 col-md-4 col-lg-3 skill-item cat-@skill.mstSkillCategoryId" data-aos="fade-up">
+                            <div class="skill-card">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="fw-bold text-white">@skill.skillName</span>
+                                    <span class="skill-badge @levelClass">@(string.IsNullOrWhiteSpace(skill.proficiencyLevel) ? "Advanced" : skill.proficiencyLevel)</span>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between text-muted" style="font-size: 0.75rem;">
+                                    <span>@skill.categoryName</span>
+                                    <span class="font-mono">@progressWidth%</span>
+                                </div>
+                                <div class="skill-progress">
+                                    <div class="skill-progress-bar" style="width: @progressWidth%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+    <!-- Featured Projects & CAD Section -->
+    @if (projects.Count > 0)
+    {
+        <section id="projects" class="py-5">
+            <div class="container py-4">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <div class="section-badge"><i class="fa-solid fa-shapes"></i> Showcase</div>
+                    <h2 class="display-5 fw-bold">Featured Projects & CAD Assets</h2>
+                    <p class="text-muted">Engineering innovations, CAD prototypes, and full-stack software applications.</p>
+
+                    <!-- Tag Filter Buttons -->
+                    @if (allTags.Count > 0)
+                    {
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" id="projectFilterContainer">
+                            <button class="filter-btn active" data-filter="all">All Projects</button>
+                            @foreach (var tag in allTags)
+                            {
+                                <button class="filter-btn" data-filter="@tag.ToLower().Replace(" ", "-")">@tag</button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="row g-4" id="projectsGrid">
+                    @foreach (var proj in projects)
+                    {
+                        bool hasCad = !string.IsNullOrWhiteSpace(proj.cadFilePath);
+                        string tagClasses = string.Join(" ", (proj.tagsList ?? new List<string>()).Select(t => t.ToLower().Replace(" ", "-")));
+
+                        <div class="col-md-6 col-lg-4 project-item @tagClasses" data-aos="fade-up">
+                            <div class="project-card">
+                                <div class="project-thumb-box">
+                                    @if (!string.IsNullOrWhiteSpace(proj.productImageUrl))
+                                    {
+                                        <img src="@proj.productImageUrl" alt="@proj.projectTitle" class="project-img" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="project-placeholder-icon">
+                                            <i class="fa-solid @(hasCad ? "fa-cube" : "fa-laptop-code")"></i>
+                                        </div>
+                                    }
+
+                                    @if (hasCad)
+                                    {
+                                        <div class="cad-badge-floating">
+                                            <i class="fa-solid fa-cube"></i> CAD Model
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="p-4 d-flex flex-column flex-grow-1 justify-content-between">
+                                    <div>
+                                        <h3 class="h5 fw-bold text-white mb-2">@proj.projectTitle</h3>
+                                        <p class="text-muted small mb-3" style="min-height: 48px; line-height: 1.5;">
+                                            @proj.description
+                                        </p>
+
+                                        @if (proj.tagsList != null && proj.tagsList.Count > 0)
+                                        {
+                                            <div class="d-flex flex-wrap gap-1 mb-4">
+                                                @foreach (var tag in proj.tagsList)
+                                                {
+                                                    <span class="tag-pill">#@tag</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="pt-3 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between gap-2">
+                                        @if (hasCad)
+                                        {
+                                            <a href="@proj.cadFilePath" class="btn btn-sm btn-glass flex-grow-1 text-center" download title="Download CAD Model">
+                                                <i class="fa-solid fa-download me-1 text-info"></i> CAD File
+                                            </a>
+                                            <button class="btn btn-sm btn-gradient px-3 btn-preview-cad" 
+                                                    data-title="@proj.projectTitle" 
+                                                    data-cad="@proj.cadFilePath"
+                                                    title="Preview 3D Model">
+                                                <i class="fa-solid fa-cube me-1"></i> 3D View
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small font-mono"><i class="fa-solid fa-code me-1 text-primary"></i>Project Asset</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+    <!-- Certifications & Publications Section -->
+    @if (certifications.Count > 0 || publications.Count > 0)
+    {
+        <section id="certifications" class="py-5">
+            <div class="container py-4">
+                <div class="text-center mb-5" data-aos="fade-up">
+                    <div class="section-badge"><i class="fa-solid fa-certificate"></i> Credentials</div>
+                    <h2 class="display-5 fw-bold">Certifications & Research Publications</h2>
+                    <p class="text-muted">Industry-certified competencies and peer-reviewed scholarly works.</p>
+                </div>
+
+                <!-- Certifications Grid -->
+                @if (certifications.Count > 0)
+                {
+                    <h3 class="h4 fw-bold mb-4 text-white"><i class="fa-solid fa-award text-primary me-2"></i>Professional Certifications</h3>
+                    <div class="row g-4 mb-5">
+                        @foreach (var cert in certifications)
+                        {
+                            <div class="col-md-6 col-lg-4" data-aos="fade-up">
+                                <div class="credential-card">
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <span class="badge rounded-pill" style="background: rgba(99, 102, 241, 0.18); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);">
+                                                @(string.IsNullOrWhiteSpace(cert.type) ? "Certification" : cert.type)
+                                            </span>
+                                            @if (!string.IsNullOrWhiteSpace(cert.issueDate))
+                                            {
+                                                <span class="text-muted small font-mono"><i class="fa-regular fa-calendar me-1"></i>@cert.issueDate</span>
+                                            }
+                                        </div>
+
+                                        <h4 class="h5 fw-bold text-white mb-1">@cert.name</h4>
+                                        <div class="text-gradient fw-semibold small mb-3">@cert.issuer</div>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(cert.credentialLink))
+                                    {
+                                        <div class="pt-3 border-top border-secondary border-opacity-25 mt-3">
+                                            <a href="@cert.credentialLink" target="_blank" class="btn btn-sm btn-glass w-100 justify-content-center">
+                                                <i class="fa-solid fa-arrow-up-right-from-square me-1 text-primary"></i> Verify Credential
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Publications Grid -->
+                @if (publications.Count > 0)
+                {
+                    <div id="publications" class="pt-3">
+                        <h3 class="h4 fw-bold mb-4 text-white"><i class="fa-solid fa-book-bookmark text-info me-2"></i>Research Publications</h3>
+                        <div class="row g-4">
+                            @foreach (var pub in publications)
+                            {
+                                <div class="col-md-6" data-aos="fade-up">
+                                    <div class="glass-panel p-4 d-flex align-items-start gap-3 h-100">
+                                        <div class="pub-paper-badge">
+                                            <i class="fa-solid fa-file-lines"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h4 class="h6 fw-bold text-white mb-1">@pub.title</h4>
+                                            <div class="text-info small mb-2">
+                                                <i class="fa-solid fa-building-columns me-1"></i>@pub.publisher
+                                                @if (!string.IsNullOrWhiteSpace(pub.publicationDate))
+                                                {
+                                                    <span class="text-muted ms-2">(@pub.publicationDate)</span>
+                                                }
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(pub.publicationLink))
+                                            {
+                                                <a href="@pub.publicationLink" target="_blank" class="text-gradient small text-decoration-none fw-semibold">
+                                                    Read Publication / DOI <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container py-4">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <div class="section-badge"><i class="fa-solid fa-envelope"></i> Get In Touch</div>
+                <h2 class="display-5 fw-bold">Let's Build Something Exceptional</h2>
+                <p class="text-muted">Have a project, research inquiry, or career opportunity? Send a message directly.</p>
+            </div>
+
+            <div class="row gy-4 align-items-stretch justify-content-center">
+                <!-- Contact Direct Info -->
+                <div class="col-lg-5" data-aos="fade-right">
+                    <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <h3 class="h4 fw-bold text-white mb-3">Contact Information</h3>
+                            <p class="text-muted mb-4">
+                                I am always open to discussing new engineering projects, CAD prototypes, publications, or collaborative opportunities.
+                            </p>
+
+                            <div class="d-flex flex-column gap-3 mb-4">
+                                @if (!string.IsNullOrWhiteSpace(personal.email))
+                                {
+                                    <a href="mailto:@personal.email" class="contact-item-box" title="Click to Email">
+                                        <div class="contact-icon-box"><i class="fa-solid fa-envelope"></i></div>
+                                        <div>
+                                            <div class="text-muted small">Email Address</div>
+                                            <div class="fw-bold">@personal.email</div>
+                                        </div>
+                                    </a>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(personal.mobileNumber))
+                                {
+                                    <a href="tel:@personal.mobileNumber" class="contact-item-box" title="Click to Call">
+                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
+                                            <i class="fa-solid fa-phone"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Direct Line</div>
+                                            <div class="fw-bold">@personal.mobileNumber</div>
+                                        </div>
+                                    </a>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(personal.location))
+                                {
+                                    <div class="contact-item-box">
+                                        <div class="contact-icon-box" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted small">Location</div>
+                                            <div class="fw-bold">@personal.location</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-top border-secondary border-opacity-25">
+                            <div class="text-muted small mb-2 font-mono">Social & Scholarly Networks:</div>
+                            <div class="d-flex flex-wrap gap-2">
+                                @if (!string.IsNullOrWhiteSpace(personal.linkedInUrl))
+                                {
+                                    <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(personal.gitHubUrl))
+                                {
+                                    <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(personal.googleScholarUrl))
+                                {
+                                    <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(personal.orcidUrl))
+                                {
+                                    <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID"><i class="fa-brands fa-orcid"></i></a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Contact Form -->
+                <div class="col-lg-7" data-aos="fade-left">
+                    <div class="glass-panel p-4 p-md-5 h-100">
+                        <h3 class="h4 fw-bold text-white mb-2">Send a Message</h3>
+                        <p class="text-muted small mb-4">Fill out the form below to initiate an inquiry directly.</p>
+
+                        <form id="contactForm">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small fw-semibold">Your Name *</label>
+                                    <input type="text" id="contactName" class="form-control form-control-glass" placeholder="John Doe" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted small fw-semibold">Your Email *</label>
+                                    <input type="email" id="contactEmail" class="form-control form-control-glass" placeholder="john@example.com" required />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-semibold">Subject</label>
+                                <input type="text" id="contactSubject" class="form-control form-control-glass" placeholder="Engineering Project / Collaboration" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-semibold">Message *</label>
+                                <textarea id="contactMessage" rows="4" class="form-control form-control-glass" placeholder="Hello Balaji, I would like to discuss..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-gradient w-100 justify-content-center py-3">
+                                <i class="fa-solid fa-paper-plane me-2"></i> Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D CAD Preview Interactive Modal -->
+    <div class="modal fade" id="cadModal" tabindex="-1" aria-labelledby="cadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-panel" style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255,255,255,0.15);">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="nav-logo-badge" style="width: 32px; height: 32px; font-size: 0.8rem;"><i class="fa-solid fa-cube"></i></div>
+                        <h5 class="modal-title fw-bold text-white mb-0" id="cadModalTitle">3D CAD Model Visualizer</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div id="cadViewerContainer">
+                        <canvas id="cadCanvas"></canvas>
+                        <!-- Interactive 3D Control Toolbar -->
+                        <div class="cad-toolbar">
+                            <button class="cad-btn-tool" id="btnToggleRotate" title="Toggle Auto-Rotate">
+                                <i class="fa-solid fa-arrows-rotate"></i> Rotate
+                            </button>
+                            <button class="cad-btn-tool" id="btnToggleWireframe" title="Toggle Wireframe">
+                                <i class="fa-solid fa-network-wired"></i> Wireframe
+                            </button>
+                            <button class="cad-btn-tool" id="btnResetView" title="Reset Camera">
+                                <i class="fa-solid fa-camera"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+                        <span class="text-muted small"><i class="fa-solid fa-hand-pointer me-1"></i> Left-click & drag to orbit • Scroll to zoom</span>
+                        <a id="btnDownloadCadModal" href="#" class="btn btn-sm btn-gradient" download>
+                            <i class="fa-solid fa-download me-1"></i> Download CAD
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Footer -->
+    <footer class="portfolio-footer">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="nav-logo-badge" style="width: 30px; height: 30px; font-size: 0.8rem;">@initials</div>
+                    <span class="fw-bold text-white">@displayName</span>
+                    <span class="text-muted small ms-2">© @DateTime.Now.Year. All rights reserved.</span>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/Dashboard" class="text-muted small text-decoration-none hover-white">
+                        <i class="fa-solid fa-shield-halved me-1"></i> Admin Portal
+                    </a>
+                    <a href="#hero" class="btn-top" title="Back to top">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts: Bootstrap, Three.js, AOS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 800,
+            once: true,
+            easing: 'ease-out-cubic'
+        });
+
+        // Sticky Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 40) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile Nav Toggle
+        document.getElementById('mobileNavToggle')?.addEventListener('click', () => {
+            document.getElementById('navLinksList').classList.toggle('mobile-open');
+        });
+
+        // Close mobile nav on click
+        document.querySelectorAll('.nav-link-custom').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinksList').classList.remove('mobile-open');
+            });
+        });
+
+        // Skills Category Filter
+        document.querySelectorAll('#skillFilterContainer .filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#skillFilterContainer .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filter = this.getAttribute('data-filter');
+
+                document.querySelectorAll('.skill-item').forEach(item => {
+                    if (filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Projects Tag Filter
+        document.querySelectorAll('#projectFilterContainer .filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#projectFilterContainer .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filter = this.getAttribute('data-filter');
+
+                document.querySelectorAll('.project-item').forEach(item => {
+                    if (filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Interactive Three.js Background Ambient Particle Mesh
+        (function initBackgroundCanvas() {
+            const canvas = document.getElementById('bgCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+            const particleCount = 45;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    size: Math.random() * 2 + 1,
+                    alpha: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    ctx.fillStyle = `rgba(99, 102, 241, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    for (let j = i + 1; j < particles.length; j++) {
+                        let p2 = particles[j];
+                        let dx = p.x - p2.x;
+                        let dy = p.y - p2.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 130) {
+                            ctx.strokeStyle = `rgba(99, 102, 241, ${(1 - dist / 130) * 0.15})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // Three.js 3D CAD Preview Modal Implementation
+        let cadScene, cadCamera, cadRenderer, cadControls, cadMesh, isRotating = true;
+        let animationFrameId;
+
+        function initCadViewer() {
+            const container = document.getElementById('cadViewerContainer');
+            const canvas = document.getElementById('cadCanvas');
+            if (!container || !canvas || cadRenderer) return;
+
+            const rect = container.getBoundingClientRect();
+            cadScene = new THREE.Scene();
+            cadScene.background = new THREE.Color(0x0a0f1d);
+
+            cadCamera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.1, 1000);
+            cadCamera.position.set(3, 2.5, 4);
+
+            cadRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            cadRenderer.setSize(rect.width, rect.height);
+            cadRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            // Ambient & Directional Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            cadScene.add(ambientLight);
+
+            const dirLight1 = new THREE.DirectionalLight(0x06b6d4, 1.2);
+            dirLight1.position.set(5, 10, 7);
+            cadScene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0x6366f1, 0.8);
+            dirLight2.position.set(-5, -5, -5);
+            cadScene.add(dirLight2);
+
+            // Grid helper
+            const gridHelper = new THREE.GridHelper(10, 20, 0x6366f1, 0x1e293b);
+            gridHelper.position.y = -1.2;
+            cadScene.add(gridHelper);
+
+            // Orbit controls
+            cadControls = new THREE.OrbitControls(cadCamera, cadRenderer.domElement);
+            cadControls.enableDamping = true;
+            cadControls.dampingFactor = 0.05;
+
+            // Generate an elegant procedural CAD prototype geometry (Toroidal Geartrain / Engineering Core)
+            const geometry = new THREE.TorusKnotGeometry(1, 0.32, 128, 32);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4,
+                metalness: 0.7,
+                roughness: 0.25,
+                wireframe: false
+            });
+            cadMesh = new THREE.Mesh(geometry, material);
+            cadScene.add(cadMesh);
+
+            function renderCad() {
+                animationFrameId = requestAnimationFrame(renderCad);
+                if (isRotating && cadMesh) {
+                    cadMesh.rotation.y += 0.008;
+                    cadMesh.rotation.x += 0.003;
+                }
+                cadControls.update();
+                cadRenderer.render(cadScene, cadCamera);
+            }
+            renderCad();
+
+            // Handle Resize
+            window.addEventListener('resize', () => {
+                if (!container || !cadRenderer) return;
+                const r = container.getBoundingClientRect();
+                cadCamera.aspect = r.width / r.height;
+                cadCamera.updateProjectionMatrix();
+                cadRenderer.setSize(r.width, r.height);
+            });
+        }
+
+        // CAD Preview Buttons Click
+        document.querySelectorAll('.btn-preview-cad').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const title = this.getAttribute('data-title') || 'CAD Model Preview';
+                const cadPath = this.getAttribute('data-cad') || '#';
+
+                document.getElementById('cadModalTitle').textContent = title + ' — 3D Viewer';
+                document.getElementById('btnDownloadCadModal').setAttribute('href', cadPath);
+
+                const modal = new bootstrap.Modal(document.getElementById('cadModal'));
+                modal.show();
+
+                setTimeout(() => {
+                    initCadViewer();
+                    if (cadRenderer) {
+                        const container = document.getElementById('cadViewerContainer');
+                        const r = container.getBoundingClientRect();
+                        cadCamera.aspect = r.width / r.height;
+                        cadCamera.updateProjectionMatrix();
+                        cadRenderer.setSize(r.width, r.height);
+                    }
+                }, 250);
+            });
+        });
+
+        // Toolbar Buttons
+        document.getElementById('btnToggleRotate')?.addEventListener('click', function() {
+            isRotating = !isRotating;
+            this.classList.toggle('active', isRotating);
+        });
+
+        document.getElementById('btnToggleWireframe')?.addEventListener('click', function() {
+            if (cadMesh) {
+                cadMesh.material.wireframe = !cadMesh.material.wireframe;
+                this.classList.toggle('active', cadMesh.material.wireframe);
+            }
+        });
+
+        document.getElementById('btnResetView')?.addEventListener('click', function() {
+            if (cadCamera && cadControls) {
+                cadCamera.position.set(3, 2.5, 4);
+                cadControls.target.set(0, 0, 0);
+            }
+        });
+
+        // Contact Form Handling (Generates Mailto & Friendly Feedback)
+        document.getElementById('contactForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const subject = document.getElementById('contactSubject').value || 'Portfolio Contact Inquiry';
+            const message = document.getElementById('contactMessage').value;
+
+            const targetEmail = '@(string.IsNullOrWhiteSpace(personal.email) ? "contact@balajiportfolio.com" : personal.email)';
+            const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent("Name: " + name + "\nEmail: " + email + "\n\nMessage:\n" + message)}`;
+            
+            window.location.href = mailtoUrl;
+
+            alert("Thank you! Your email client has been opened with your inquiry. Looking forward to connecting!");
+            this.reset();
+        });
+    </script>
+</body>
+</html>
