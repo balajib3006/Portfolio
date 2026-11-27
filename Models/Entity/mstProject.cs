@@ -11,6 +11,9 @@ namespace BalajiPortfolio.Models.Entity
 
         #region Project Details
         public string? projectTitle { get; set; }
+        public string? clientName { get; set; }
+        public string? startDate { get; set; }
+        public string? endDate { get; set; }
         public string? description { get; set; }
         public string? productImageUrl { get; set; }
         public string? cadFilePath { get; set; }

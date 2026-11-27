@@ -53,40 +53,26 @@ CREATE TABLE IF NOT EXISTS `mstExperience` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
--- 4. Table: mstSkillCategory (Skill Categories)
--- =================================================================================
-CREATE TABLE IF NOT EXISTS `mstSkillCategory` (
-    `mstSkillCategoryId` INT NOT NULL AUTO_INCREMENT,
-    `categoryName` VARCHAR(255) NULL,
-    `isActive` TINYINT(1) NOT NULL DEFAULT 1,
-    `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`mstSkillCategoryId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- =================================================================================
--- 5. Table: mstSkill (Technical Skills mapped to mstSkillCategory)
+-- 4. Table: mstSkill (Technical Skills & Proficiency Levels)
 -- =================================================================================
 CREATE TABLE IF NOT EXISTS `mstSkill` (
     `mstSkillId` INT NOT NULL AUTO_INCREMENT,
-    `mstSkillCategoryId` INT NOT NULL,
     `skillName` VARCHAR(255) NULL,
     `proficiencyLevel` VARCHAR(100) NULL,
     `isActive` TINYINT(1) NOT NULL DEFAULT 1,
     `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`mstSkillId`),
-    KEY `IX_mstSkill_mstSkillCategoryId` (`mstSkillCategoryId`),
-    CONSTRAINT `FK_mstSkill_mstSkillCategory_mstSkillCategoryId` 
-        FOREIGN KEY (`mstSkillCategoryId`) 
-        REFERENCES `mstSkillCategory` (`mstSkillCategoryId`) 
-        ON DELETE CASCADE
+    PRIMARY KEY (`mstSkillId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
--- 6. Table: mstProject (Projects Showcase with Product Image & CAD File)
+-- 5. Table: mstProject (Projects Showcase with Client, Dates, Image & CAD File)
 -- =================================================================================
 CREATE TABLE IF NOT EXISTS `mstProject` (
     `mstProjectId` INT NOT NULL AUTO_INCREMENT,
     `projectTitle` VARCHAR(255) NULL,
+    `clientName` VARCHAR(255) NULL,
+    `startDate` VARCHAR(100) NULL,
+    `endDate` VARCHAR(100) NULL,
     `description` TEXT NULL,
     `productImageUrl` VARCHAR(500) NULL,
     `cadFilePath` VARCHAR(500) NULL,
@@ -97,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `mstProject` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
--- 7. Table: mstCertification (Certifications & Badges)
+-- 6. Table: mstCertification (Certifications & Badges)
 -- =================================================================================
 CREATE TABLE IF NOT EXISTS `mstCertification` (
     `mstCertificationId` INT NOT NULL AUTO_INCREMENT,
@@ -113,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `mstCertification` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =================================================================================
--- 8. Table: mstPublication (Publications & Research Papers)
+-- 7. Table: mstPublication (Publications, Research Papers & Abstracts)
 -- =================================================================================
 CREATE TABLE IF NOT EXISTS `mstPublication` (
     `mstPublicationId` INT NOT NULL AUTO_INCREMENT,
@@ -121,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `mstPublication` (
     `publisher` VARCHAR(255) NULL,
     `publicationDate` VARCHAR(100) NULL,
     `publicationLink` VARCHAR(500) NULL,
+    `abstractText` TEXT NULL,
     `isActive` TINYINT(1) NOT NULL DEFAULT 1,
     `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`mstPublicationId`)

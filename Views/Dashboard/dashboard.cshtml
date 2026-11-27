@@ -1,92 +1,155 @@
+@model BalajiPortfolio.Models.DTO.DashboardDTO
 @{
     ViewData["Title"] = "Dashboard";
 }
 
+<!-- Welcome Header with Real Profile Status -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 bg-white p-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h2 class="h3 fw-bold text-dark mb-1">
+                @(Model.HasProfile ? $"Welcome back, {Model.ProfileName}!" : "Welcome to your Portfolio Dashboard")
+            </h2>
+            <p class="text-muted mb-0">Here is the real-time summary of your portfolio content and assets.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Website" asp-action="Portfolio" target="_blank" class="btn btn-outline-primary rounded-3 px-3 fw-semibold">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Preview Portfolio
+            </a>
+            <a asp-controller="Personal" asp-action="Index" class="btn btn-primary rounded-3 px-3 fw-semibold">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time Statistics Cards -->
 <div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-primary">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-primary h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <span class="text-muted small fw-semibold text-uppercase">Projects</span>
-                    <h3 class="fw-bold mb-0 text-dark mt-1">12</h3>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">@Model.TotalProjects</h3>
                 </div>
                 <div class="rounded-circle bg-primary bg-opacity-10 p-3 text-primary fs-4">
                     <i class="fa-solid fa-diagram-project"></i>
                 </div>
             </div>
+            <div class="mt-2 pt-2 border-top">
+                <a asp-controller="Project" asp-action="Index" class="small text-decoration-none text-primary fw-semibold">
+                    Manage Projects <i class="fa-solid fa-chevron-right ms-1"></i>
+                </a>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-success">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-success h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-muted small fw-semibold text-uppercase">Skills</span>
-                    <h3 class="fw-bold mb-0 text-dark mt-1">24</h3>
+                    <span class="text-muted small fw-semibold text-uppercase">Technical Skills</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">@Model.TotalSkills</h3>
                 </div>
                 <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success fs-4">
                     <i class="fa-solid fa-code"></i>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-info">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-muted small fw-semibold text-uppercase">Certifications</span>
-                    <h3 class="fw-bold mb-0 text-dark mt-1">8</h3>
-                </div>
-                <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info fs-4">
-                    <i class="fa-solid fa-certificate"></i>
-                </div>
+            <div class="mt-2 pt-2 border-top">
+                <a asp-controller="Skill" asp-action="Index" class="small text-decoration-none text-success fw-semibold">
+                    Manage Skills <i class="fa-solid fa-chevron-right ms-1"></i>
+                </a>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-warning">
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-dark h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-muted small fw-semibold text-uppercase">Messages</span>
-                    <h3 class="fw-bold mb-0 text-dark mt-1">5</h3>
+                    <span class="text-muted small fw-semibold text-uppercase">Experiences</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">@Model.TotalExperiences</h3>
                 </div>
-                <div class="rounded-circle bg-warning bg-opacity-10 p-3 text-warning fs-4">
-                    <i class="fa-solid fa-envelope"></i>
+                <div class="rounded-circle bg-dark bg-opacity-10 p-3 text-dark fs-4">
+                    <i class="fa-solid fa-briefcase"></i>
                 </div>
+            </div>
+            <div class="mt-2 pt-2 border-top">
+                <a asp-controller="Experience" asp-action="Index" class="small text-decoration-none text-dark fw-semibold">
+                    Manage Work History <i class="fa-solid fa-chevron-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-info h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Certs & Papers</span>
+                    <h3 class="fw-bold mb-0 text-dark mt-1">@(Model.TotalCertifications + Model.TotalPublications)</h3>
+                </div>
+                <div class="rounded-circle bg-info bg-opacity-10 p-3 text-info fs-4">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+            </div>
+            <div class="mt-2 pt-2 border-top d-flex justify-content-between">
+                <a asp-controller="Certification" asp-action="Index" class="small text-decoration-none text-info fw-semibold">
+                    Certs (@Model.TotalCertifications)
+                </a>
+                <a asp-controller="Publication" asp-action="Index" class="small text-decoration-none text-info fw-semibold">
+                    Pubs (@Model.TotalPublications)
+                </a>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Quick Navigation & Management Actions -->
 <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-4">
-        <h4 class="fw-bold mb-3"><i class="fa-solid fa-rocket text-primary me-2"></i>Quick Actions</h4>
+        <h4 class="fw-bold mb-3"><i class="fa-solid fa-bolt text-primary me-2"></i>Quick Management Modules</h4>
         <div class="row g-3">
-            <div class="col-md-3">
-                <a asp-controller="Personal" asp-action="Index" class="btn btn-outline-primary w-100 p-3 text-start rounded-3">
-                    <i class="fa-solid fa-address-card fs-4 d-block mb-2"></i>
-                    <span class="fw-bold d-block">Update Profile</span>
-                    <small class="text-muted">Edit bio, details & social media</small>
+            <div class="col-md-4">
+                <a asp-controller="Personal" asp-action="Index" class="btn btn-outline-primary w-100 p-3 text-start rounded-3 h-100">
+                    <i class="fa-solid fa-address-card fs-4 d-block mb-2 text-primary"></i>
+                    <span class="fw-bold d-block text-dark">Profile & About</span>
+                    <small class="text-muted">Bio, location, contact, summary & social links</small>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a asp-controller="Experience" asp-action="Index" class="btn btn-outline-dark w-100 p-3 text-start rounded-3">
-                    <i class="fa-solid fa-briefcase fs-4 d-block mb-2"></i>
-                    <span class="fw-bold d-block">Manage Experience</span>
-                    <small class="text-muted">Add work history & roles</small>
+            <div class="col-md-4">
+                <a asp-controller="Experience" asp-action="Index" class="btn btn-outline-dark w-100 p-3 text-start rounded-3 h-100">
+                    <i class="fa-solid fa-briefcase fs-4 d-block mb-2 text-dark"></i>
+                    <span class="fw-bold d-block text-dark">Work Experience</span>
+                    <small class="text-muted">Add roles, employment dates & key achievements</small>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a asp-controller="Project" asp-action="Index" class="btn btn-outline-success w-100 p-3 text-start rounded-3">
-                    <i class="fa-solid fa-diagram-project fs-4 d-block mb-2"></i>
-                    <span class="fw-bold d-block">Add Project</span>
-                    <small class="text-muted">Showcase portfolio work</small>
+            <div class="col-md-4">
+                <a asp-controller="Skill" asp-action="Index" class="btn btn-outline-success w-100 p-3 text-start rounded-3 h-100">
+                    <i class="fa-solid fa-code fs-4 d-block mb-2 text-success"></i>
+                    <span class="fw-bold d-block text-dark">Skills</span>
+                    <small class="text-muted">Manage skills & proficiency levels</small>
                 </a>
             </div>
-            <div class="col-md-3">
-                <a asp-controller="Message" asp-action="Index" class="btn btn-outline-info w-100 p-3 text-start rounded-3">
-                    <i class="fa-solid fa-envelope fs-4 d-block mb-2"></i>
-                    <span class="fw-bold d-block">View Inbox</span>
-                    <small class="text-muted">Check contact inquiries</small>
+            <div class="col-md-4">
+                <a asp-controller="Project" asp-action="Index" class="btn btn-outline-primary w-100 p-3 text-start rounded-3 h-100">
+                    <i class="fa-solid fa-diagram-project fs-4 d-block mb-2 text-primary"></i>
+                    <span class="fw-bold d-block text-dark">Projects & CAD</span>
+                    <small class="text-muted">Showcase projects with client, dates & 3D files</small>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-controller="Certification" asp-action="Index" class="btn btn-outline-warning w-100 p-3 text-start rounded-3 h-100">
+                    <i class="fa-solid fa-certificate fs-4 d-block mb-2 text-warning"></i>
+                    <span class="fw-bold d-block text-dark">Certifications</span>
+                    <small class="text-muted">Add credentials, issuers & verification URLs</small>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-controller="Publication" asp-action="Index" class="btn btn-outline-info w-100 p-3 text-start rounded-3 h-100">
+                    <i class="fa-solid fa-book-bookmark fs-4 d-block mb-2 text-info"></i>
+                    <span class="fw-bold d-block text-dark">Publications</span>
+                    <small class="text-muted">Research papers, publishers, abstracts & DOIs</small>
                 </a>
             </div>
         </div>

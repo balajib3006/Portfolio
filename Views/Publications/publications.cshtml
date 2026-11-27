@@ -35,6 +35,16 @@
         justify-content: center;
         font-size: 1.5rem;
     }
+    .abstract-box {
+        background: #f8fafc;
+        border-left: 3px solid #3b82f6;
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.85rem;
+        color: #475569;
+        margin-top: 10px;
+        margin-bottom: 12px;
+    }
 </style>
 
 <div class="container-fluid px-0">
@@ -59,7 +69,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
             <h2 class="h3 fw-bold text-dark mb-1"><i class="fa-solid fa-book-bookmark text-primary me-2"></i>Publications</h2>
-            <p class="text-muted mb-0">Manage your research papers, articles, journal publications, and reading links</p>
+            <p class="text-muted mb-0">Manage your research papers, articles, journal publications, and abstracts</p>
         </div>
         <button type="button" class="btn btn-primary btn-lg rounded-3 shadow-sm px-4 fw-semibold" onclick="openAddPublicationModal()">
             <i class="fa-solid fa-plus me-2"></i>Add Publication
@@ -89,7 +99,15 @@
 
                             @if (!string.IsNullOrEmpty(item.publicationDate))
                             {
-                                <p class="text-muted small mb-3"><i class="fa-regular fa-calendar-days me-1"></i>Published: @item.publicationDate</p>
+                                <p class="text-muted small mb-2"><i class="fa-regular fa-calendar-days me-1"></i>Published: @item.publicationDate</p>
+                            }
+
+                            @if (!string.IsNullOrEmpty(item.abstractText))
+                            {
+                                <div class="abstract-box">
+                                    <strong class="d-block text-dark mb-1"><i class="fa-solid fa-align-left me-1"></i>Abstract:</strong>
+                                    <span>@item.abstractText</span>
+                                </div>
                             }
 
                             @if (!string.IsNullOrEmpty(item.publicationLink))
@@ -158,14 +176,19 @@
                             <input type="text" name="title" id="pubTitle" class="form-control" placeholder="Enter paper / article title" required />
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">Publisher</label>
-                            <input type="text" name="publisher" id="pubPublisher" class="form-control" placeholder="e.g. IEEE, Springer, Medium, ArXiv" />
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Abstract</label>
+                            <textarea name="abstractText" id="pubAbstract" class="form-control" rows="4" placeholder="Brief summary or abstract of the research paper / article..."></textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Date / Year</label>
-                            <input type="text" name="publicationDate" id="pubDate" class="form-control" placeholder="e.g. 2024 / May 2024" />
+                            <label class="form-label fw-semibold">Publisher</label>
+                            <input type="text" name="publisher" id="pubPublisher" class="form-control" placeholder="e.g. IEEE, Springer, Nature, Medium, ArXiv" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Publication Date</label>
+                            <input type="date" name="publicationDate" id="pubDate" class="form-control" />
                         </div>
 
                         <div class="col-12">
@@ -196,6 +219,7 @@
             document.getElementById('modalPubTitleText').innerText = "Add Publication";
             document.getElementById('pubId').value = 0;
             document.getElementById('pubTitle').value = "";
+            document.getElementById('pubAbstract').value = "";
             document.getElementById('pubPublisher').value = "";
             document.getElementById('pubDate').value = "";
             document.getElementById('pubLink').value = "";
@@ -207,6 +231,7 @@
             document.getElementById('modalPubTitleText').innerText = "Edit Publication";
             document.getElementById('pubId').value = data.mstPublicationId;
             document.getElementById('pubTitle').value = data.title || "";
+            document.getElementById('pubAbstract').value = data.abstractText || "";
             document.getElementById('pubPublisher').value = data.publisher || "";
             document.getElementById('pubDate').value = data.publicationDate || "";
             document.getElementById('pubLink').value = data.publicationLink || "";

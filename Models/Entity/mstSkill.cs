@@ -10,7 +10,6 @@ namespace BalajiPortfolio.Models.Entity
         public int mstSkillId { get; set; }
 
         #region Skill Details
-        public int mstSkillCategoryId { get; set; }
         public string? skillName { get; set; }
         public string? proficiencyLevel { get; set; }
         #endregion

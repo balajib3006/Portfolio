@@ -175,11 +175,11 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Start Date</label>
-                            <input type="text" name="startDate" id="expStartDate" class="form-control" placeholder="e.g. Jan 2022" />
+                            <input type="date" name="startDate" id="expStartDate" class="form-control" />
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">End Date</label>
-                            <input type="text" name="endDate" id="expEndDate" class="form-control" placeholder="e.g. Present / Dec 2024" />
+                            <input type="date" name="endDate" id="expEndDate" class="form-control" />
                         </div>
                         <div class="col-12">
                             <div class="form-check">
@@ -196,7 +196,6 @@
                                 <label class="form-label fw-bold text-dark mb-0">
                                     <i class="fa-solid fa-list-check me-2 text-primary"></i>Responsibilities & Key Achievements
                                 </label>
-                                <!-- NEAR RESPONSIBILITIES FIELD KEEP ADD BUTTON -->
                                 <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold px-3" onclick="addResponsibilityField()">
                                     <i class="fa-solid fa-plus me-1"></i>Add Responsibility
                                 </button>
@@ -237,7 +236,6 @@
             document.getElementById('expEndDate').disabled = false;
             document.getElementById('expCurrentlyWorking').checked = false;
 
-            // Clear responsibilities container and add one initial blank field
             const container = document.getElementById('responsibilitiesContainer');
             container.innerHTML = "";
             addResponsibilityField();
@@ -262,13 +260,10 @@
         function toggleEndDate(checkbox) {
             const endDateInput = document.getElementById('expEndDate');
             if (checkbox.checked) {
-                endDateInput.value = "Present";
+                endDateInput.value = "";
                 endDateInput.disabled = true;
             } else {
                 endDateInput.disabled = false;
-                if (endDateInput.value === "Present") {
-                    endDateInput.value = "";
-                }
             }
         }
 

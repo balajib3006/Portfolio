@@ -1,4 +1,3 @@
-using System.Text.Json;
 using BalajiPortfolio.Helpers.DbContexts;
 using BalajiPortfolio.Interfaces;
 using BalajiPortfolio.Models.DTO;
@@ -6,12 +5,13 @@ using BalajiPortfolio.Models.Entity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace BalajiPortfolio.Repositories
 {
     public class ProjectRepository : IProjectRepository
     {
-        #region DB Context and Interface References
+        #region DB Context, Interfaces and Environment
         private readonly appDBContext _context;
         private readonly IApiResponseRepository _apiResponseRepository;
         private readonly IWebHostEnvironment _webHostEnvironment;
@@ -105,6 +105,9 @@ namespace BalajiPortfolio.Repositories
                     var newProject = new mstProject
                     {
                         projectTitle = dto.projectTitle.Trim(),
+                        clientName = dto.clientName?.Trim(),
+                        startDate = dto.startDate?.Trim(),
+                        endDate = dto.endDate?.Trim(),
                         description = dto.description,
                         productImageUrl = uploadedImageUrl ?? dto.productImageUrl,
                         cadFilePath = uploadedCadPath ?? dto.cadFilePath,
@@ -129,6 +132,9 @@ namespace BalajiPortfolio.Repositories
                     }
 
                     existing.projectTitle = dto.projectTitle.Trim();
+                    existing.clientName = dto.clientName?.Trim();
+                    existing.startDate = dto.startDate?.Trim();
+                    existing.endDate = dto.endDate?.Trim();
                     existing.description = dto.description;
                     if (!string.IsNullOrEmpty(uploadedImageUrl))
                     {
@@ -149,7 +155,7 @@ namespace BalajiPortfolio.Repositories
                 return _apiResponseRepository.SuccessResponse(new ApiResponseDTO
                 {
                     statusCode = 200,
-                    message = "Project saved successfully."
+                    message = "Project record saved successfully."
                 });
             }
             catch (Exception ex)
@@ -179,7 +185,6 @@ namespace BalajiPortfolio.Repositories
                     });
                 }
 
-                // Soft Delete
                 existing.isActive = false;
                 existing.updatedAt = DateTime.UtcNow;
                 _context.mstProjects.Update(existing);
@@ -204,17 +209,19 @@ namespace BalajiPortfolio.Repositories
         }
         #endregion
 
-        #region Project - Utility Methods
+        #region Project - File Upload Operations
         private async Task<string> SaveProductImageAsync(IFormFile file)
         {
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "projects", "images");
-            if (!Directory.Exists(uploadsFolder))
+            var webRoot = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadDir = Path.Combine(webRoot, "uploads", "projects", "images");
+
+            if (!Directory.Exists(uploadDir))
             {
-                Directory.CreateDirectory(uploadsFolder);
+                Directory.CreateDirectory(uploadDir);
             }
 
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadDir, uniqueFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
@@ -226,14 +233,16 @@ namespace BalajiPortfolio.Repositories
 
         private async Task<string> SaveCadFileAsync(IFormFile file)
         {
-            string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "projects", "cad");
-            if (!Directory.Exists(uploadsFolder))
+            var webRoot = _webHostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var uploadDir = Path.Combine(webRoot, "uploads", "projects", "cad");
+
+            if (!Directory.Exists(uploadDir))
             {
-                Directory.CreateDirectory(uploadsFolder);
+                Directory.CreateDirectory(uploadDir);
             }
 
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
-            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            var filePath = Path.Combine(uploadDir, uniqueFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
@@ -263,6 +272,9 @@ namespace BalajiPortfolio.Repositories
             {
                 mstProjectId = entity.mstProjectId,
                 projectTitle = entity.projectTitle,
+                clientName = entity.clientName,
+                startDate = entity.startDate,
+                endDate = entity.endDate,
                 description = entity.description,
                 productImageUrl = entity.productImageUrl,
                 cadFilePath = entity.cadFilePath,

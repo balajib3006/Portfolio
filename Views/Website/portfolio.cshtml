@@ -3,7 +3,7 @@
     Layout = null;
     var personal = Model?.Personal ?? new BalajiPortfolio.Models.DTO.PersonalDTO();
     var experiences = Model?.Experiences ?? new List<BalajiPortfolio.Models.DTO.ExperienceDTO>();
-    var skillsData = Model?.SkillsData ?? new BalajiPortfolio.Models.DTO.SkillsPageDTO();
+    var skills = Model?.Skills ?? new List<BalajiPortfolio.Models.DTO.SkillDTO>();
     var projects = Model?.Projects ?? new List<BalajiPortfolio.Models.DTO.ProjectDTO>();
     var certifications = Model?.Certifications ?? new List<BalajiPortfolio.Models.DTO.CertificationDTO>();
     var publications = Model?.Publications ?? new List<BalajiPortfolio.Models.DTO.PublicationDTO>();
@@ -55,7 +55,7 @@
     // Section visibility flags
     bool hasAboutSection = hasSummary || hasAcademic;
     bool hasExperienceSection = experiences.Count > 0;
-    bool hasSkillsSection = skillsData.skills.Count > 0;
+    bool hasSkillsSection = skills.Count > 0;
     bool hasProjectsSection = projects.Count > 0;
     bool hasCertificationsSection = certifications.Count > 0;
     bool hasPublicationsSection = publications.Count > 0;
@@ -455,7 +455,7 @@
             margin-top: 6px;
         }
 
-        /* Social Icons */
+        /* Social Icons & Top-Right Connect */
         .social-link {
             width: 42px;
             height: 42px;
@@ -477,6 +477,86 @@
             border-color: var(--primary-light);
             transform: translateY(-3px);
             box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        .nav-social-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-social-icon:hover {
+            color: #ffffff;
+            background: var(--primary);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .hero-top-connect {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            padding: 6px 16px;
+            border-radius: 9999px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .social-link-sm {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-sub);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .social-link-sm:hover {
+            color: #ffffff;
+            background: var(--primary);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* Top Badges Below Name */
+        .badge-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 16px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.28);
+        }
+
+        .bg-surface-badge {
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            font-weight: 500;
+            border: 1px solid var(--border-glass);
+            font-size: 0.82rem;
+            padding: 7px 14px;
         }
 
         /* Timeline / Experience */
@@ -745,7 +825,188 @@
             border: 1px solid rgba(168, 85, 247, 0.3);
         }
 
-        /* Contact Section */
+        /* Contact Section & Digital Business Card */
+        .business-card-wrapper {
+            perspective: 1200px;
+        }
+
+        .business-card {
+            position: relative;
+            width: 100%;
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.98) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 32px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(99, 102, 241, 0.18);
+            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+            transform-style: preserve-3d;
+        }
+
+        .business-card:hover {
+            box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.8), 0 0 50px rgba(6, 182, 212, 0.25);
+            border-color: rgba(6, 182, 212, 0.45);
+        }
+
+        .business-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .business-card-hologram {
+            position: absolute;
+            top: -40%;
+            right: -40%;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 70%);
+            pointer-events: none;
+            filter: blur(40px);
+        }
+
+        .business-card-chip {
+            width: 48px;
+            height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #92400e 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.5), 0 3px 10px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .business-card-chip-lines {
+            width: 26px;
+            height: 18px;
+            border: 1px solid rgba(0, 0, 0, 0.35);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .business-card-chip-lines::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .business-card-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+        }
+
+        .business-card-title {
+            font-size: 0.95rem;
+            color: var(--secondary);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .business-card-org {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .business-card-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .business-card-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.35);
+            color: #ffffff;
+            transform: translateX(4px);
+        }
+
+        .business-card-item i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary-light);
+            font-size: 1.05rem;
+        }
+
+        .btn-card-action {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            color: #ffffff;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-card-action:hover {
+            background: var(--primary);
+            border-color: var(--primary-light);
+            color: #ffffff;
+        }
+
+        /* 3D CAD HUD and Loader */
+        .cad-model-hud {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-glass);
+            color: #38bdf8;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 10;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cad-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 15, 29, 0.88);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: #38bdf8;
+            font-size: 0.9rem;
+            z-index: 20;
+            transition: opacity 0.3s ease;
+        }
+
         .contact-item-box {
             display: flex;
             align-items: center;
@@ -914,17 +1175,39 @@
                 }
             </ul>
 
-            <!-- Nav Action Buttons -->
+            <!-- Nav Action Buttons & Top-Right Connect -->
             <div class="d-flex align-items-center gap-2">
+                @if (hasAnySocial)
+                {
+                    <div class="d-none d-md-flex align-items-center gap-1 me-2">
+                        @if (hasLinkedIn)
+                        {
+                            <a href="@personal.linkedInUrl" target="_blank" class="nav-social-icon" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        }
+                        @if (hasGitHub)
+                        {
+                            <a href="@personal.gitHubUrl" target="_blank" class="nav-social-icon" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                        }
+                        @if (hasGitLab)
+                        {
+                            <a href="@personal.gitLabUrl" target="_blank" class="nav-social-icon" title="GitLab"><i class="fa-brands fa-gitlab"></i></a>
+                        }
+                        @if (hasScholar)
+                        {
+                            <a href="@personal.googleScholarUrl" target="_blank" class="nav-social-icon" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                        }
+                        @if (hasOrcid)
+                        {
+                            <a href="@personal.orcidUrl" target="_blank" class="nav-social-icon" title="ORCID"><i class="fa-brands fa-orcid"></i></a>
+                        }
+                    </div>
+                }
                 @if (hasContactSection)
                 {
                     <a href="#contact" class="btn-gradient d-none d-sm-inline-flex">
                         <i class="fa-solid fa-paper-plane"></i> Contact
                     </a>
                 }
-                <a href="/Dashboard" title="Admin Portal" class="btn-glass" target="_blank">
-                    <i class="fa-solid fa-gauge-high"></i> <span class="d-none d-md-inline">Admin</span>
-                </a>
                 <button class="btn btn-sm btn-glass d-lg-none" id="mobileNavToggle" aria-label="Toggle navigation">
                     <i class="fa-solid fa-bars"></i>
                 </button>
@@ -935,15 +1218,48 @@
     <!-- Hero Section -->
     <section id="hero" class="hero-section">
         <div class="container">
+            <!-- Top Right Connect Bar -->
+            @if (hasAnySocial)
+            {
+                <div class="d-flex justify-content-end mb-4" data-aos="fade-down" data-aos-duration="600">
+                    <div class="hero-top-connect">
+                        <span class="text-muted small font-mono me-1"><i class="fa-solid fa-link text-primary me-1"></i>Connect:</span>
+                        @if (hasLinkedIn)
+                        {
+                            <a href="@personal.linkedInUrl" target="_blank" class="social-link-sm" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        }
+                        @if (hasGitHub)
+                        {
+                            <a href="@personal.gitHubUrl" target="_blank" class="social-link-sm" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                        }
+                        @if (hasGitLab)
+                        {
+                            <a href="@personal.gitLabUrl" target="_blank" class="social-link-sm" title="GitLab"><i class="fa-brands fa-gitlab"></i></a>
+                        }
+                        @if (hasScholar)
+                        {
+                            <a href="@personal.googleScholarUrl" target="_blank" class="social-link-sm" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                        }
+                        @if (hasOrcid)
+                        {
+                            <a href="@personal.orcidUrl" target="_blank" class="social-link-sm" title="ORCID Profile"><i class="fa-brands fa-orcid"></i></a>
+                        }
+                        @if (hasEmail)
+                        {
+                            <a href="mailto:@personal.email" class="social-link-sm" title="Email"><i class="fa-solid fa-envelope"></i></a>
+                        }
+                        @if (hasMobile)
+                        {
+                            <a href="tel:@personal.mobileNumber" class="social-link-sm" title="Phone"><i class="fa-solid fa-phone"></i></a>
+                        }
+                    </div>
+                </div>
+            }
+
             <div class="row align-items-center gy-5">
                 <!-- Hero Left Info -->
                 <div class="col-lg-7" data-aos="fade-up" data-aos-duration="900">
-                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);">
-                        <span class="status-dot"></span>
-                        <span style="font-size: 0.82rem; font-weight: 600; color: #34d399;">Available for Opportunities</span>
-                    </div>
-
-                    <h1 class="display-3 fw-bold mb-2">
+                    <h1 class="display-3 fw-bold mb-3">
                         @if (hasName)
                         {
                             <span>Hi, I'm <span class="text-gradient">@personal.name</span></span>
@@ -953,7 +1269,27 @@
                             <span class="text-gradient">Portfolio Showcase</span>
                         }
                     </h1>
-                    
+
+                    <!-- Badges Directly Below Name -->
+                    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center justify-content-center justify-content-lg-start">
+                        <div class="badge-status-pill">
+                            <span class="status-dot"></span>
+                            <span>Available for Opportunities</span>
+                        </div>
+                        @if (hasLocation)
+                        {
+                            <span class="badge py-2 px-3 rounded-pill bg-surface-badge">
+                                <i class="fa-solid fa-location-dot text-primary me-2"></i>@personal.location
+                            </span>
+                        }
+                        @if (hasWorkDetails)
+                        {
+                            <span class="badge py-2 px-3 rounded-pill bg-surface-badge">
+                                <i class="fa-solid fa-briefcase text-info me-2"></i>@personal.workDetails
+                            </span>
+                        }
+                    </div>
+
                     @if (hasBio)
                     {
                         <h2 class="h3 fw-semibold text-gradient-purple mb-3">
@@ -968,27 +1304,8 @@
                         </p>
                     }
 
-                    <!-- Real Location / Work Details Pills (Only if entered) -->
-                    @if (hasLocation || hasWorkDetails)
-                    {
-                        <div class="d-flex flex-wrap gap-2 mb-4 justify-content-center justify-content-lg-start">
-                            @if (hasLocation)
-                            {
-                                <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
-                                    <i class="fa-solid fa-location-dot text-primary me-2"></i>@personal.location
-                                </span>
-                            }
-                            @if (hasWorkDetails)
-                            {
-                                <span class="badge py-2 px-3 rounded-pill" style="background: rgba(255,255,255,0.06); color: #cbd5e1; font-weight: 500;">
-                                    <i class="fa-solid fa-briefcase text-info me-2"></i>@personal.workDetails
-                                </span>
-                            }
-                        </div>
-                    }
-
                     <!-- Call to Actions -->
-                    <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center justify-content-lg-start">
+                    <div class="d-flex flex-wrap gap-3 mb-2 justify-content-center justify-content-lg-start">
                         @if (hasProjectsSection)
                         {
                             <a href="#projects" class="btn-gradient">
@@ -998,7 +1315,7 @@
                         @if (hasContactSection)
                         {
                             <a href="#contact" class="btn-glass">
-                                <i class="fa-solid fa-envelope"></i> Get in Touch
+                                <i class="fa-solid fa-id-card"></i> Contact & Card
                             </a>
                         }
                         @if (hasEmail)
@@ -1008,38 +1325,6 @@
                             </a>
                         }
                     </div>
-
-                    <!-- Verified Social & Academic Links (Only rendered if URL exists) -->
-                    @if (hasAnySocial)
-                    {
-                        <div class="d-flex align-items-center gap-2 justify-content-center justify-content-lg-start">
-                            <span class="text-muted small me-2 font-mono">Connect:</span>
-                            @if (hasLinkedIn)
-                            {
-                                <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-                            }
-                            @if (hasGitHub)
-                            {
-                                <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
-                            }
-                            @if (hasGitLab)
-                            {
-                                <a href="@personal.gitLabUrl" target="_blank" class="social-link" title="GitLab"><i class="fa-brands fa-gitlab"></i></a>
-                            }
-                            @if (hasScholar)
-                            {
-                                <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
-                            }
-                            @if (hasOrcid)
-                            {
-                                <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID Profile"><i class="fa-brands fa-orcid"></i></a>
-                            }
-                            @if (hasMobile)
-                            {
-                                <a href="tel:@personal.mobileNumber" class="social-link" title="Call Me"><i class="fa-solid fa-phone"></i></a>
-                            }
-                        </div>
-                    }
                 </div>
 
                 <!-- Hero Right: Avatar with Glow Ring -->
@@ -1057,49 +1342,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Real Stats Ribbon (Only displayed if actual values are present) -->
-            @if (hasAnyStats)
-            {
-                <div class="row g-3 mt-5 pt-3 justify-content-center" data-aos="fade-up" data-aos-duration="800">
-                    @if (hasExpYears)
-                    {
-                        <div class="col-6 col-md-3">
-                            <div class="stat-card">
-                                <div class="stat-number">@expYears</div>
-                                <div class="stat-label">Years Experience</div>
-                            </div>
-                        </div>
-                    }
-                    @if (hasProjectsCount)
-                    {
-                        <div class="col-6 col-md-3">
-                            <div class="stat-card">
-                                <div class="stat-number">@projectsCountStr</div>
-                                <div class="stat-label">Projects Completed</div>
-                            </div>
-                        </div>
-                    }
-                    @if (hasCompaniesCount)
-                    {
-                        <div class="col-6 col-md-3">
-                            <div class="stat-card">
-                                <div class="stat-number">@companiesCountStr</div>
-                                <div class="stat-label">Companies / Clients</div>
-                            </div>
-                        </div>
-                    }
-                    @if (hasCredentialsCount)
-                    {
-                        <div class="col-6 col-md-3">
-                            <div class="stat-card">
-                                <div class="stat-number">@credentialsCountStr</div>
-                                <div class="stat-label">Certs & Publications</div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
         </div>
     </section>
 
@@ -1208,6 +1450,56 @@
                         </div>
                     }
                 </div>
+
+                <!-- Experience Data Metrics Strip (Positioned Directly Below Professional Overview) -->
+                @if (hasAnyStats)
+                {
+                    <div class="mt-5 pt-4 border-top border-secondary border-opacity-25" data-aos="fade-up" data-aos-duration="800">
+                        <div class="text-center mb-4">
+                            <span class="badge py-2 px-3 rounded-pill font-mono small text-uppercase" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3);">
+                                <i class="fa-solid fa-chart-line me-2"></i>Experience Data & Milestones
+                            </span>
+                        </div>
+                        <div class="row g-3 justify-content-center">
+                            @if (hasExpYears)
+                            {
+                                <div class="col-6 col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-number">@expYears</div>
+                                        <div class="stat-label">Years Experience</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (hasProjectsCount)
+                            {
+                                <div class="col-6 col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-number">@projectsCountStr</div>
+                                        <div class="stat-label">Projects Completed</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (hasCompaniesCount)
+                            {
+                                <div class="col-6 col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-number">@companiesCountStr</div>
+                                        <div class="stat-label">Companies / Clients</div>
+                                    </div>
+                                </div>
+                            }
+                            @if (hasCredentialsCount)
+                            {
+                                <div class="col-6 col-md-3">
+                                    <div class="stat-card">
+                                        <div class="stat-number">@credentialsCountStr</div>
+                                        <div class="stat-label">Certs & Publications</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             </div>
         </section>
     }
@@ -1288,21 +1580,10 @@
                 <div class="text-center mb-5" data-aos="fade-up">
                     <div class="section-badge"><i class="fa-solid fa-microchip"></i> Capabilities</div>
                     <h2 class="display-5 fw-bold">Skills & Proficiencies</h2>
-
-                    @if (skillsData.categories.Count > 1)
-                    {
-                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-4" id="skillFilterContainer">
-                            <button class="filter-btn active" data-filter="all">All Skills</button>
-                            @foreach (var cat in skillsData.categories)
-                            {
-                                <button class="filter-btn" data-filter="cat-@cat.mstSkillCategoryId">@cat.categoryName</button>
-                            }
-                        </div>
-                    }
                 </div>
 
                 <div class="row g-3" id="skillsGrid">
-                    @foreach (var skill in skillsData.skills)
+                    @foreach (var skill in skills)
                     {
                         string levelClass = "badge-advanced";
                         string level = skill.proficiencyLevel?.ToLower() ?? "";
@@ -1312,19 +1593,15 @@
                         else if (level.Contains("inter")) { levelClass = "badge-intermediate"; }
                         else if (level.Contains("begin")) { levelClass = "badge-beginner"; }
 
-                        <div class="col-sm-6 col-md-4 col-lg-3 skill-item cat-@skill.mstSkillCategoryId" data-aos="fade-up">
+                        <div class="col-sm-6 col-md-4 col-lg-3 skill-item" data-aos="fade-up">
                             <div class="skill-card">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center justify-content-between">
                                     <span class="fw-bold text-white">@skill.skillName</span>
                                     @if (!string.IsNullOrWhiteSpace(skill.proficiencyLevel))
                                     {
                                         <span class="skill-badge @levelClass">@skill.proficiencyLevel</span>
                                     }
                                 </div>
-                                @if (!string.IsNullOrWhiteSpace(skill.categoryName))
-                                {
-                                    <div class="text-muted small">@skill.categoryName</div>
-                                }
                             </div>
                         </div>
                     }
@@ -1384,7 +1661,23 @@
 
                                 <div class="p-4 d-flex flex-column flex-grow-1 justify-content-between">
                                     <div>
-                                        <h3 class="h5 fw-bold text-white mb-2">@proj.projectTitle</h3>
+                                        <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                                            <h3 class="h5 fw-bold text-white mb-0">@proj.projectTitle</h3>
+                                            @if (!string.IsNullOrWhiteSpace(proj.startDate) || !string.IsNullOrWhiteSpace(proj.endDate))
+                                            {
+                                                <span class="badge py-1 px-2 rounded-pill bg-dark border border-secondary border-opacity-25 font-mono text-muted small">
+                                                    <i class="fa-regular fa-calendar me-1"></i>@proj.startDate @(string.IsNullOrWhiteSpace(proj.endDate) ? "" : "— " + proj.endDate)
+                                                </span>
+                                            }
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(proj.clientName))
+                                        {
+                                            <div class="text-info small fw-semibold mb-2">
+                                                <i class="fa-solid fa-briefcase me-1"></i>@proj.clientName
+                                            </div>
+                                        }
+
                                         @if (!string.IsNullOrWhiteSpace(proj.description))
                                         {
                                             <p class="text-muted small mb-3" style="line-height: 1.5;">
@@ -1405,15 +1698,12 @@
 
                                     @if (hasCad)
                                     {
-                                        <div class="pt-3 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between gap-2">
-                                            <a href="@proj.cadFilePath" class="btn btn-sm btn-glass flex-grow-1 text-center" download title="Download CAD Model">
-                                                <i class="fa-solid fa-download me-1 text-info"></i> Download CAD
-                                            </a>
-                                            <button class="btn btn-sm btn-gradient px-3 btn-preview-cad" 
+                                        <div class="pt-3 border-top border-secondary border-opacity-25 mt-3">
+                                            <button class="btn btn-sm btn-gradient w-100 justify-content-center py-2 btn-preview-cad" 
                                                     data-title="@proj.projectTitle" 
                                                     data-cad="@proj.cadFilePath"
-                                                    title="Preview 3D Model">
-                                                <i class="fa-solid fa-cube me-1"></i> 3D View
+                                                    title="Launch 3D CAD Interactive Visualizer">
+                                                <i class="fa-solid fa-cube me-2"></i> Launch 3D CAD Viewer
                                             </button>
                                         </div>
                                     }
@@ -1503,11 +1793,22 @@
                                                     }
                                                 </div>
                                             }
+
+                                            @if (!string.IsNullOrWhiteSpace(pub.abstractText))
+                                            {
+                                                <div class="my-2 p-3 rounded" style="background: rgba(255,255,255,0.03); border-left: 3px solid var(--secondary); font-size: 0.88rem; line-height: 1.6; color: var(--text-sub);">
+                                                    <strong class="text-white d-block mb-1" style="font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase;"><i class="fa-solid fa-align-left me-1 text-info"></i> Abstract</strong>
+                                                    @pub.abstractText
+                                                </div>
+                                            }
+
                                             @if (!string.IsNullOrWhiteSpace(pub.publicationLink))
                                             {
-                                                <a href="@pub.publicationLink" target="_blank" class="text-gradient small text-decoration-none fw-semibold">
-                                                    Read Publication <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
-                                                </a>
+                                                <div class="mt-2">
+                                                    <a href="@pub.publicationLink" target="_blank" class="text-gradient small text-decoration-none fw-semibold">
+                                                        Read Publication <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                                                    </a>
+                                                </div>
                                             }
                                         </div>
                                     </div>
@@ -1520,95 +1821,116 @@
         </section>
     }
 
-    <!-- Contact Section (Only if contact information or message capability exists) -->
+    <!-- Contact Section (Digital Business Card & Direct Messaging) -->
     @if (hasContactSection)
     {
         <section id="contact" class="py-5">
             <div class="container py-4">
                 <div class="text-center mb-5" data-aos="fade-up">
-                    <div class="section-badge"><i class="fa-solid fa-envelope"></i> Contact</div>
-                    <h2 class="display-5 fw-bold">Get In Touch</h2>
+                    <div class="section-badge"><i class="fa-solid fa-id-card"></i> Contact</div>
+                    <h2 class="display-5 fw-bold">Executive Contact & Business Card</h2>
                 </div>
 
                 <div class="row gy-4 align-items-stretch justify-content-center">
-                    <!-- Contact Information Column -->
+                    <!-- Left Column: Interactive Executive Digital Business Card -->
                     <div class="col-lg-5" data-aos="fade-right">
-                        <div class="glass-panel p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
-                            <div>
-                                <h3 class="h4 fw-bold text-white mb-3">Direct Contact</h3>
-
-                                <div class="d-flex flex-column gap-3 mb-4">
-                                    @if (hasEmail)
-                                    {
-                                        <a href="mailto:@personal.email" class="contact-item-box" title="Click to Email">
-                                            <div class="contact-icon-box"><i class="fa-solid fa-envelope"></i></div>
-                                            <div>
-                                                <div class="text-muted small">Email</div>
-                                                <div class="fw-bold">@personal.email</div>
-                                            </div>
-                                        </a>
-                                    }
-
-                                    @if (hasMobile)
-                                    {
-                                        <a href="tel:@personal.mobileNumber" class="contact-item-box" title="Click to Call">
-                                            <div class="contact-icon-box" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
-                                                <i class="fa-solid fa-phone"></i>
-                                            </div>
-                                            <div>
-                                                <div class="text-muted small">Phone</div>
-                                                <div class="fw-bold">@personal.mobileNumber</div>
-                                            </div>
-                                        </a>
-                                    }
-
-                                    @if (hasLocation)
-                                    {
-                                        <div class="contact-item-box">
-                                            <div class="contact-icon-box" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
-                                                <i class="fa-solid fa-location-dot"></i>
-                                            </div>
-                                            <div>
-                                                <div class="text-muted small">Location</div>
-                                                <div class="fw-bold">@personal.location</div>
-                                            </div>
+                        <div class="business-card-wrapper h-100 d-flex flex-column justify-content-center">
+                            <div class="business-card" id="executiveBusinessCard">
+                                <div class="business-card-hologram"></div>
+                                
+                                <!-- Card Header: Chip, Contactless NFC, Verified Badge -->
+                                <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="business-card-chip">
+                                            <div class="business-card-chip-lines"></div>
                                         </div>
-                                    }
+                                        <i class="fa-solid fa-wifi fa-rotate-90 text-warning opacity-75 fs-5" title="Contactless Digital Card"></i>
+                                    </div>
+                                    <span class="badge py-1 px-3 rounded-pill" style="background: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Verified Profile
+                                    </span>
                                 </div>
-                            </div>
 
-                            @if (hasAnySocial)
-                            {
-                                <div class="pt-4 border-top border-secondary border-opacity-25">
-                                    <div class="text-muted small mb-2 font-mono">Profiles:</div>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @if (hasLinkedIn)
+                                <!-- Card Identity -->
+                                <div class="d-flex align-items-center gap-3 mb-4">
+                                    <div class="avatar-wrapper m-0" style="width: 64px; height: 64px; flex-shrink: 0;">
+                                        @if (!string.IsNullOrWhiteSpace(personal.profilePictureUrl))
                                         {
-                                            <a href="@personal.linkedInUrl" target="_blank" class="social-link" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                                            <img src="@personal.profilePictureUrl" alt="@displayName" class="avatar-img" style="border-width: 2px;" />
                                         }
-                                        @if (hasGitHub)
+                                        else
                                         {
-                                            <a href="@personal.gitHubUrl" target="_blank" class="social-link" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                                            <div class="avatar-fallback" style="font-size: 1.5rem; border-width: 2px;">@initials</div>
                                         }
-                                        @if (hasScholar)
+                                    </div>
+                                    <div>
+                                        <h3 class="business-card-name">@displayName</h3>
+                                        <div class="business-card-title">@(hasBio ? personal.bio : "Professional Portfolio")</div>
+                                        @if (hasWorkDetails)
                                         {
-                                            <a href="@personal.googleScholarUrl" target="_blank" class="social-link" title="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
-                                        }
-                                        @if (hasOrcid)
-                                        {
-                                            <a href="@personal.orcidUrl" target="_blank" class="social-link" title="ORCID"><i class="fa-brands fa-orcid"></i></a>
+                                            <div class="business-card-org"><i class="fa-solid fa-briefcase me-1 text-muted"></i>@personal.workDetails</div>
                                         }
                                     </div>
                                 </div>
-                            }
+
+                                <!-- Card Contact Details List -->
+                                <div class="d-flex flex-column gap-2 mb-4">
+                                    @if (hasEmail)
+                                    {
+                                        <a href="mailto:@personal.email" class="business-card-item" title="Click to email">
+                                            <i class="fa-solid fa-envelope"></i>
+                                            <span class="text-truncate">@personal.email</span>
+                                        </a>
+                                    }
+                                    @if (hasMobile)
+                                    {
+                                        <a href="tel:@personal.mobileNumber" class="business-card-item" title="Click to call">
+                                            <i class="fa-solid fa-phone"></i>
+                                            <span>@personal.mobileNumber</span>
+                                        </a>
+                                    }
+                                    @if (hasLocation)
+                                    {
+                                        <div class="business-card-item">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            <span>@personal.location</span>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Card Footer: Quick Actions & Social Icons -->
+                                <div class="pt-3 border-top border-secondary border-opacity-25 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <div class="d-flex align-items-center gap-1">
+                                        @if (hasLinkedIn)
+                                        {
+                                            <a href="@personal.linkedInUrl" target="_blank" class="social-link-sm" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                                        }
+                                        @if (hasGitHub)
+                                        {
+                                            <a href="@personal.gitHubUrl" target="_blank" class="social-link-sm" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                                        }
+                                        @if (hasScholar)
+                                        {
+                                            <a href="@personal.googleScholarUrl" target="_blank" class="social-link-sm" title="Scholar"><i class="fa-solid fa-graduation-cap"></i></a>
+                                        }
+                                        @if (hasOrcid)
+                                        {
+                                            <a href="@personal.orcidUrl" target="_blank" class="social-link-sm" title="ORCID"><i class="fa-brands fa-orcid"></i></a>
+                                        }
+                                    </div>
+                                    <button type="button" class="btn-card-action" onclick="copyContactInfo()">
+                                        <i class="fa-regular fa-copy"></i> <span id="copyBtnText">Copy Contact</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Contact Form Column -->
+                    <!-- Right Column: Send a Message Form -->
                     <div class="col-lg-7" data-aos="fade-left">
                         <div class="glass-panel p-4 p-md-5 h-100">
-                            <h3 class="h4 fw-bold text-white mb-2">Send a Message</h3>
-                            <p class="text-muted small mb-4">Feel free to reach out directly through this form.</p>
+                            <h3 class="h4 fw-bold text-white mb-2">Send a Direct Message</h3>
+                            <p class="text-muted small mb-4">Have an opportunity or inquiry? Send a direct message below.</p>
 
                             <form id="contactForm">
                                 <div class="row g-3 mb-3">
@@ -1654,6 +1976,19 @@
                 <div class="modal-body p-3">
                     <div id="cadViewerContainer">
                         <canvas id="cadCanvas"></canvas>
+
+                        <!-- Model HUD Status Indicator -->
+                        <div id="cadModelHud" class="cad-model-hud">
+                            <i class="fa-solid fa-cube text-info"></i>
+                            <span id="cadHudText">Loading CAD Model...</span>
+                        </div>
+
+                        <!-- CAD Interactive Loading Overlay -->
+                        <div id="cadLoadingOverlay" class="cad-loading-overlay d-none">
+                            <div class="spinner-border text-info" role="status"></div>
+                            <span id="cadLoadingText" class="font-mono small">Processing Geometry...</span>
+                        </div>
+
                         <!-- Interactive 3D Control Toolbar -->
                         <div class="cad-toolbar">
                             <button class="cad-btn-tool" id="btnToggleRotate" title="Toggle Auto-Rotate">
@@ -1662,16 +1997,19 @@
                             <button class="cad-btn-tool" id="btnToggleWireframe" title="Toggle Wireframe">
                                 <i class="fa-solid fa-network-wired"></i> Wireframe
                             </button>
+                            <button class="cad-btn-tool" id="btnToggleMaterial" title="Toggle Shading Finish">
+                                <i class="fa-solid fa-palette"></i> Shading
+                            </button>
                             <button class="cad-btn-tool" id="btnResetView" title="Reset Camera">
                                 <i class="fa-solid fa-camera"></i> Reset
                             </button>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
-                        <span class="text-muted small"><i class="fa-solid fa-hand-pointer me-1"></i> Orbit: Left-click & drag • Zoom: Scroll</span>
-                        <a id="btnDownloadCadModal" href="#" class="btn btn-sm btn-gradient" download>
-                            <i class="fa-solid fa-download me-1"></i> Download CAD
-                        </a>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 px-2 gap-2">
+                        <span class="text-muted small"><i class="fa-solid fa-hand-pointer me-1 text-info"></i> Orbit: Left-click & drag • Zoom: Scroll • Pan: Right-click & drag</span>
+                        <span class="badge bg-dark border border-secondary border-opacity-25 text-info font-mono small py-2 px-3">
+                            <i class="fa-solid fa-microchip me-1"></i> WebGL 3D Interactive
+                        </span>
                     </div>
                 </div>
             </div>
@@ -1689,9 +2027,6 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-3">
-                    <a href="/Dashboard" class="text-muted small text-decoration-none hover-white">
-                        <i class="fa-solid fa-shield-halved me-1"></i> Admin Portal
-                    </a>
                     <a href="#hero" class="btn-top" title="Back to top">
                         <i class="fa-solid fa-arrow-up"></i>
                     </a>
@@ -1700,12 +2035,15 @@
         </div>
     </footer>
 
-    <!-- Scripts: Bootstrap, Three.js, AOS -->
+    <!-- Scripts: Bootstrap, Three.js, Loaders, AOS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
         // Initialize AOS animations
@@ -1734,23 +2072,6 @@
         document.querySelectorAll('.nav-link-custom').forEach(link => {
             link.addEventListener('click', () => {
                 document.getElementById('navLinksList').classList.remove('mobile-open');
-            });
-        });
-
-        // Skills Category Filter
-        document.querySelectorAll('#skillFilterContainer .filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#skillFilterContainer .filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const filter = this.getAttribute('data-filter');
-
-                document.querySelectorAll('.skill-item').forEach(item => {
-                    if (filter === 'all' || item.classList.contains(filter)) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
             });
         });
 
@@ -1837,11 +2158,13 @@
             animate();
         })();
 
-        // Three.js 3D CAD Preview Modal Implementation
-        let cadScene, cadCamera, cadRenderer, cadControls, cadMesh, isRotating = true;
+        // Three.js 3D CAD Preview Engine (Dynamic Loader with Procedural Engineering Fallback)
+        let cadScene, cadCamera, cadRenderer, cadControls, cadMeshGroup, isRotating = true;
         let animationFrameId;
+        let isClayMaterial = false;
+        let currentCadMaterial;
 
-        function initCadViewer() {
+        function initCadViewerBase() {
             const container = document.getElementById('cadViewerContainer');
             const canvas = document.getElementById('cadCanvas');
             if (!container || !canvas || cadRenderer) return;
@@ -1851,24 +2174,24 @@
             cadScene.background = new THREE.Color(0x0a0f1d);
 
             cadCamera = new THREE.PerspectiveCamera(45, rect.width / rect.height, 0.1, 1000);
-            cadCamera.position.set(3, 2.5, 4);
+            cadCamera.position.set(4, 3, 5);
 
-            cadRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            cadRenderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
             cadRenderer.setSize(rect.width, rect.height);
             cadRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
             cadScene.add(ambientLight);
 
-            const dirLight1 = new THREE.DirectionalLight(0x06b6d4, 1.2);
-            dirLight1.position.set(5, 10, 7);
+            const dirLight1 = new THREE.DirectionalLight(0x06b6d4, 1.4);
+            dirLight1.position.set(6, 12, 8);
             cadScene.add(dirLight1);
 
-            const dirLight2 = new THREE.DirectionalLight(0x6366f1, 0.8);
-            dirLight2.position.set(-5, -5, -5);
+            const dirLight2 = new THREE.DirectionalLight(0x6366f1, 0.9);
+            dirLight2.position.set(-8, -6, -6);
             cadScene.add(dirLight2);
 
-            const gridHelper = new THREE.GridHelper(10, 20, 0x6366f1, 0x1e293b);
+            const gridHelper = new THREE.GridHelper(12, 24, 0x6366f1, 0x1e293b);
             gridHelper.position.y = -1.2;
             cadScene.add(gridHelper);
 
@@ -1876,22 +2199,10 @@
             cadControls.enableDamping = true;
             cadControls.dampingFactor = 0.05;
 
-            // Procedural engineering geometry for CAD preview
-            const geometry = new THREE.TorusKnotGeometry(1, 0.32, 128, 32);
-            const material = new THREE.MeshStandardMaterial({
-                color: 0x06b6d4,
-                metalness: 0.7,
-                roughness: 0.25,
-                wireframe: false
-            });
-            cadMesh = new THREE.Mesh(geometry, material);
-            cadScene.add(cadMesh);
-
             function renderCad() {
                 animationFrameId = requestAnimationFrame(renderCad);
-                if (isRotating && cadMesh) {
-                    cadMesh.rotation.y += 0.008;
-                    cadMesh.rotation.x += 0.003;
+                if (isRotating && cadMeshGroup) {
+                    cadMeshGroup.rotation.y += 0.007;
                 }
                 cadControls.update();
                 cadRenderer.render(cadScene, cadCamera);
@@ -1907,19 +2218,188 @@
             });
         }
 
+        // Procedural Engineering CAD Model (High-Precision Multi-Vane Turbine Impeller)
+        function createProceduralEngineeringModel() {
+            const group = new THREE.Group();
+
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4,
+                metalness: 0.85,
+                roughness: 0.22,
+                wireframe: false
+            });
+            currentCadMaterial = mat;
+
+            // 1. Central Rotor Hub with tapered mechanical bore
+            const hubGeo = new THREE.CylinderGeometry(0.55, 0.8, 1.0, 32);
+            const hub = new THREE.Mesh(hubGeo, mat);
+            group.add(hub);
+
+            // 2. Central Bore & Shaft Collar
+            const collarGeo = new THREE.CylinderGeometry(0.32, 0.32, 1.25, 32);
+            const collarMat = new THREE.MeshStandardMaterial({
+                color: 0x818cf8,
+                metalness: 0.9,
+                roughness: 0.2
+            });
+            const collar = new THREE.Mesh(collarGeo, collarMat);
+            group.add(collar);
+
+            // 3. 10 Aerodynamic Curved Turbine Vanes
+            const bladeCount = 10;
+            for (let i = 0; i < bladeCount; i++) {
+                const angle = (i / bladeCount) * Math.PI * 2;
+                const bladeGeo = new THREE.BoxGeometry(0.1, 0.75, 1.3);
+                const blade = new THREE.Mesh(bladeGeo, mat);
+                blade.position.set(Math.cos(angle) * 1.05, 0, Math.sin(angle) * 1.05);
+                blade.rotation.y = -angle + 0.5;
+                blade.rotation.x = 0.35;
+                group.add(blade);
+            }
+
+            // 4. Outer Shroud Retention Ring
+            const ringGeo = new THREE.TorusGeometry(1.7, 0.08, 16, 64);
+            const ring = new THREE.Mesh(ringGeo, mat);
+            ring.rotation.x = Math.PI / 2;
+            group.add(ring);
+
+            return group;
+        }
+
+        function clearCadModel() {
+            if (cadMeshGroup && cadScene) {
+                cadScene.remove(cadMeshGroup);
+                cadMeshGroup.traverse(child => {
+                    if (child.isMesh) {
+                        child.geometry?.dispose();
+                        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                        else child.material?.dispose();
+                    }
+                });
+                cadMeshGroup = null;
+            }
+        }
+
+        function loadCadModel(cadPath, title) {
+            initCadViewerBase();
+            clearCadModel();
+
+            const hudText = document.getElementById('cadHudText');
+            const overlay = document.getElementById('cadLoadingOverlay');
+            const loadingText = document.getElementById('cadLoadingText');
+
+            function showLoader(txt) {
+                if (overlay) {
+                    overlay.classList.remove('d-none');
+                    if (loadingText) loadingText.textContent = txt || 'Loading CAD Geometry...';
+                }
+            }
+
+            function hideLoader() {
+                if (overlay) overlay.classList.add('d-none');
+            }
+
+            const cleanPath = (cadPath || '').trim();
+            const lowerPath = cleanPath.toLowerCase();
+
+            function fitCameraToMesh(obj) {
+                const box = new THREE.Box3().setFromObject(obj);
+                const size = box.getSize(new THREE.Vector3());
+                const center = box.getCenter(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z) || 2;
+                const fov = cadCamera.fov * (Math.PI / 180);
+                let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.6;
+                cadCamera.position.set(center.x + cameraZ * 0.7, center.y + cameraZ * 0.5, center.z + cameraZ * 0.9);
+                cadCamera.lookAt(center);
+                cadControls.target.copy(center);
+                cadControls.update();
+            }
+
+            // Fallback to Procedural Engineering Turbine
+            function fallbackToEngineeringModel() {
+                hideLoader();
+                cadMeshGroup = createProceduralEngineeringModel();
+                cadScene.add(cadMeshGroup);
+                if (hudText) hudText.textContent = title + ' • Mechanical Impeller CAD Simulation';
+                cadCamera.position.set(3, 2.5, 4);
+                cadControls.target.set(0, 0, 0);
+                cadControls.update();
+            }
+
+            if (!cleanPath || cleanPath === '#' || cleanPath === '/') {
+                fallbackToEngineeringModel();
+                return;
+            }
+
+            showLoader('Fetching ' + cleanPath.split('/').pop() + '...');
+
+            const standardCadMaterial = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4,
+                metalness: 0.85,
+                roughness: 0.22
+            });
+            currentCadMaterial = standardCadMaterial;
+
+            if (lowerPath.endsWith('.stl') && window.THREE && THREE.STLLoader) {
+                const loader = new THREE.STLLoader();
+                loader.load(cleanPath, function (geometry) {
+                    hideLoader();
+                    geometry.computeVertexNormals();
+                    geometry.center();
+                    const mesh = new THREE.Mesh(geometry, standardCadMaterial);
+                    cadMeshGroup = new THREE.Group();
+                    cadMeshGroup.add(mesh);
+                    cadScene.add(cadMeshGroup);
+                    fitCameraToMesh(cadMeshGroup);
+                    if (hudText) hudText.textContent = title + ' • STL Solid Model';
+                }, undefined, function (err) {
+                    console.warn('Could not load STL, falling back to procedural CAD simulation:', err);
+                    fallbackToEngineeringModel();
+                });
+            } else if (lowerPath.endsWith('.obj') && window.THREE && THREE.OBJLoader) {
+                const loader = new THREE.OBJLoader();
+                loader.load(cleanPath, function (obj) {
+                    hideLoader();
+                    obj.traverse(child => {
+                        if (child.isMesh) child.material = standardCadMaterial;
+                    });
+                    cadMeshGroup = obj;
+                    cadScene.add(cadMeshGroup);
+                    fitCameraToMesh(cadMeshGroup);
+                    if (hudText) hudText.textContent = title + ' • OBJ 3D Model';
+                }, undefined, function (err) {
+                    console.warn('Could not load OBJ, falling back to procedural CAD simulation:', err);
+                    fallbackToEngineeringModel();
+                });
+            } else if ((lowerPath.endsWith('.gltf') || lowerPath.endsWith('.glb')) && window.THREE && THREE.GLTFLoader) {
+                const loader = new THREE.GLTFLoader();
+                loader.load(cleanPath, function (gltf) {
+                    hideLoader();
+                    cadMeshGroup = gltf.scene || gltf.scenes[0];
+                    cadScene.add(cadMeshGroup);
+                    fitCameraToMesh(cadMeshGroup);
+                    if (hudText) hudText.textContent = title + ' • glTF CAD Scene';
+                }, undefined, function (err) {
+                    console.warn('Could not load GLTF, falling back to procedural CAD simulation:', err);
+                    fallbackToEngineeringModel();
+                });
+            } else {
+                fallbackToEngineeringModel();
+            }
+        }
+
         document.querySelectorAll('.btn-preview-cad').forEach(btn => {
             btn.addEventListener('click', function() {
                 const title = this.getAttribute('data-title') || 'CAD Model Preview';
-                const cadPath = this.getAttribute('data-cad') || '#';
+                const cadPath = this.getAttribute('data-cad') || '';
 
                 document.getElementById('cadModalTitle').textContent = title + ' — 3D Viewer';
-                document.getElementById('btnDownloadCadModal').setAttribute('href', cadPath);
 
                 const modal = new bootstrap.Modal(document.getElementById('cadModal'));
                 modal.show();
 
                 setTimeout(() => {
-                    initCadViewer();
+                    loadCadModel(cadPath, title);
                     if (cadRenderer) {
                         const container = document.getElementById('cadViewerContainer');
                         const r = container.getBoundingClientRect();
@@ -1937,18 +2417,83 @@
         });
 
         document.getElementById('btnToggleWireframe')?.addEventListener('click', function() {
-            if (cadMesh) {
-                cadMesh.material.wireframe = !cadMesh.material.wireframe;
-                this.classList.toggle('active', cadMesh.material.wireframe);
+            if (cadMeshGroup) {
+                let wire = false;
+                cadMeshGroup.traverse(child => {
+                    if (child.isMesh && child.material) {
+                        child.material.wireframe = !child.material.wireframe;
+                        wire = child.material.wireframe;
+                    }
+                });
+                this.classList.toggle('active', wire);
+            }
+        });
+
+        document.getElementById('btnToggleMaterial')?.addEventListener('click', function() {
+            isClayMaterial = !isClayMaterial;
+            this.classList.toggle('active', isClayMaterial);
+            if (cadMeshGroup) {
+                cadMeshGroup.traverse(child => {
+                    if (child.isMesh && child.material) {
+                        if (isClayMaterial) {
+                            child.material.color = new THREE.Color(0xf1f5f9);
+                            child.material.metalness = 0.05;
+                            child.material.roughness = 0.8;
+                        } else {
+                            child.material.color = new THREE.Color(0x06b6d4);
+                            child.material.metalness = 0.85;
+                            child.material.roughness = 0.22;
+                        }
+                    }
+                });
             }
         });
 
         document.getElementById('btnResetView')?.addEventListener('click', function() {
             if (cadCamera && cadControls) {
-                cadCamera.position.set(3, 2.5, 4);
+                cadCamera.position.set(4, 3, 5);
                 cadControls.target.set(0, 0, 0);
+                cadControls.update();
             }
         });
+
+        // Copy Contact Information Function for Business Card
+        function copyContactInfo() {
+            const name = '@displayName';
+            const email = '@(hasEmail ? personal.email : "")';
+            const phone = '@(hasMobile ? personal.mobileNumber : "")';
+            const location = '@(hasLocation ? personal.location : "")';
+            
+            const contactText = `${name}\nEmail: ${email}\nPhone: ${phone}\nLocation: ${location}`;
+            navigator.clipboard.writeText(contactText).then(() => {
+                const btn = document.getElementById('copyBtnText');
+                if (btn) {
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => { btn.textContent = 'Copy Contact'; }, 2500);
+                }
+            }).catch(() => {
+                alert('Contact details:\n' + contactText);
+            });
+        }
+
+        // Interactive 3D Business Card Tilt Effect
+        const businessCard = document.getElementById('executiveBusinessCard');
+        if (businessCard) {
+            businessCard.addEventListener('mousemove', function (e) {
+                const rect = businessCard.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 12;
+                businessCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+
+            businessCard.addEventListener('mouseleave', function () {
+                businessCard.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        }
 
         // Contact Form Handling (Uses real personal email when available)
         document.getElementById('contactForm')?.addEventListener('submit', function(e) {

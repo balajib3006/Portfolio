@@ -19,42 +19,8 @@ namespace BalajiPortfolio.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var data = await _skillRepository.GetSkillsPageDataAsync();
-            return View("~/Views/Skills/skills.cshtml", data);
-        }
-        #endregion
-
-        #region Skill Category - API Endpoints
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveCategory(SkillCategoryDTO dto)
-        {
-            var response = await _skillRepository.SaveCategoryAsync(dto);
-            if (response.success)
-            {
-                TempData["SuccessMessage"] = response.message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = response.message;
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteCategory(int id)
-        {
-            var response = await _skillRepository.DeleteCategoryAsync(id);
-            if (response.success)
-            {
-                TempData["SuccessMessage"] = response.message;
-            }
-            else
-            {
-                TempData["ErrorMessage"] = response.message;
-            }
-            return RedirectToAction(nameof(Index));
+            var skills = await _skillRepository.GetAllSkillsAsync();
+            return View("~/Views/Skills/skills.cshtml", skills);
         }
         #endregion
 

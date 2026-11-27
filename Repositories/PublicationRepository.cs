@@ -8,7 +8,7 @@ namespace BalajiPortfolio.Repositories
 {
     public class PublicationRepository : IPublicationRepository
     {
-        #region DB Context and Interface References
+        #region DB Context and Interfaces
         private readonly appDBContext _context;
         private readonly IApiResponseRepository _apiResponseRepository;
 
@@ -29,6 +29,7 @@ namespace BalajiPortfolio.Repositories
                 {
                     mstPublicationId = p.mstPublicationId,
                     title = p.title,
+                    abstractText = p.abstractText,
                     publisher = p.publisher,
                     publicationDate = p.publicationDate,
                     publicationLink = p.publicationLink,
@@ -46,6 +47,7 @@ namespace BalajiPortfolio.Repositories
                 {
                     mstPublicationId = p.mstPublicationId,
                     title = p.title,
+                    abstractText = p.abstractText,
                     publisher = p.publisher,
                     publicationDate = p.publicationDate,
                     publicationLink = p.publicationLink,
@@ -75,6 +77,7 @@ namespace BalajiPortfolio.Repositories
                     var newEntity = new mstPublication
                     {
                         title = dto.title.Trim(),
+                        abstractText = dto.abstractText?.Trim(),
                         publisher = dto.publisher?.Trim(),
                         publicationDate = dto.publicationDate?.Trim(),
                         publicationLink = dto.publicationLink?.Trim(),
@@ -98,6 +101,7 @@ namespace BalajiPortfolio.Repositories
                     }
 
                     existing.title = dto.title.Trim();
+                    existing.abstractText = dto.abstractText?.Trim();
                     existing.publisher = dto.publisher?.Trim();
                     existing.publicationDate = dto.publicationDate?.Trim();
                     existing.publicationLink = dto.publicationLink?.Trim();
@@ -141,7 +145,6 @@ namespace BalajiPortfolio.Repositories
                     });
                 }
 
-                // Soft Delete
                 existing.isActive = false;
                 existing.updatedAt = DateTime.UtcNow;
                 _context.mstPublications.Update(existing);

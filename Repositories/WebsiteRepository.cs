@@ -36,7 +36,7 @@ namespace BalajiPortfolio.Repositories
             // DbContext is not thread-safe; execute sequentially within the scoped request
             var personal = await _personalRepo.GetPersonalDetailsAsync();
             var experiences = await _experienceRepo.GetAllExperiencesAsync();
-            var skills = await _skillRepo.GetSkillsPageDataAsync();
+            var skills = await _skillRepo.GetAllSkillsAsync();
             var projects = await _projectRepo.GetAllProjectsAsync();
             var certifications = await _certificationRepo.GetAllCertificationsAsync();
             var publications = await _publicationRepo.GetAllPublicationsAsync();
@@ -45,7 +45,7 @@ namespace BalajiPortfolio.Repositories
             {
                 Personal = personal ?? new PersonalDTO(),
                 Experiences = experiences ?? new List<ExperienceDTO>(),
-                SkillsData = skills ?? new SkillsPageDTO(),
+                Skills = skills ?? new List<SkillDTO>(),
                 Projects = projects ?? new List<ProjectDTO>(),
                 Certifications = certifications ?? new List<CertificationDTO>(),
                 Publications = publications ?? new List<PublicationDTO>()

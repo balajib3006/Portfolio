@@ -12,7 +12,6 @@ namespace BalajiPortfolio.Helpers.DbContexts
 
         public DbSet<mstPersonal> mstPersonals { get; set; }
         public DbSet<mstExperience> mstExperiences { get; set; }
-        public DbSet<mstSkillCategory> mstSkillCategories { get; set; }
         public DbSet<mstSkill> mstSkills { get; set; }
         public DbSet<mstProject> mstProjects { get; set; }
         public DbSet<mstCertification> mstCertifications { get; set; }
@@ -24,7 +23,6 @@ namespace BalajiPortfolio.Helpers.DbContexts
 
             modelBuilder.Entity<mstPersonal>().ToTable("mstpersonal");
             modelBuilder.Entity<mstExperience>().ToTable("mstexperience");
-            modelBuilder.Entity<mstSkillCategory>().ToTable("mstskillcategory");
             modelBuilder.Entity<mstSkill>().ToTable("mstskill");
             modelBuilder.Entity<mstProject>().ToTable("mstproject");
             modelBuilder.Entity<mstCertification>().ToTable("mstcertification");

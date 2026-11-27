@@ -11,6 +11,7 @@ namespace BalajiPortfolio.Models.Entity
 
         #region Publication Details
         public string? title { get; set; }
+        public string? abstractText { get; set; }
         public string? publisher { get; set; }
         public string? publicationDate { get; set; }
         public string? publicationLink { get; set; }

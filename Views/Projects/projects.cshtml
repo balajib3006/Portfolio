@@ -58,6 +58,24 @@
         background: #fde68a;
         color: #78350f;
     }
+    .client-badge {
+        background: #ecfdf5;
+        color: #065f46;
+        font-weight: 600;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid #a7f3d0;
+    }
+    .date-badge-proj {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+    }
 </style>
 
 <div class="container-fluid px-0">
@@ -82,7 +100,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <div>
             <h2 class="h3 fw-bold text-dark mb-1"><i class="fa-solid fa-diagram-project text-primary me-2"></i>Projects Showcase</h2>
-            <p class="text-muted mb-0">Manage your CAD designs, product images, technical descriptions, and project tags</p>
+            <p class="text-muted mb-0">Manage your projects, client details, project dates, CAD designs, and tags</p>
         </div>
         <button type="button" class="btn btn-primary btn-lg rounded-3 shadow-sm px-4 fw-semibold" onclick="openAddProjectModal()">
             <i class="fa-solid fa-plus me-2"></i>Add Project
@@ -109,10 +127,30 @@
                                 </div>
                             }
                         </div>
-                        <div class="card-body p-4 d-flex flex-direction-column justify-content-between">
+                        <div class="card-body p-4 d-flex flex-column justify-content-between">
                             <div>
                                 <h4 class="fw-bold text-dark mb-2">@item.projectTitle</h4>
-                                <p class="text-muted small mb-3" style="white-space: pre-line;">@item.description</p>
+
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                                    @if (!string.IsNullOrEmpty(item.clientName))
+                                    {
+                                        <span class="client-badge"><i class="fa-solid fa-building me-1"></i>@item.clientName</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.startDate) || !string.IsNullOrEmpty(item.endDate))
+                                    {
+                                        <span class="date-badge-proj">
+                                            <i class="fa-regular fa-calendar-days me-1"></i>
+                                            @(string.IsNullOrEmpty(item.startDate) ? "" : item.startDate) 
+                                            @(!string.IsNullOrEmpty(item.startDate) && !string.IsNullOrEmpty(item.endDate) ? "—" : "") 
+                                            @(string.IsNullOrEmpty(item.endDate) ? "" : item.endDate)
+                                        </span>
+                                    }
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(item.description))
+                                {
+                                    <p class="text-muted small mb-3" style="white-space: pre-line;">@item.description</p>
+                                }
 
                                 @if (!string.IsNullOrEmpty(item.cadFilePath))
                                 {
@@ -188,9 +226,24 @@
 
                 <div class="modal-body p-4">
                     <div class="row g-3">
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold">Project Title <span class="text-danger">*</span></label>
                             <input type="text" name="projectTitle" id="projTitle" class="form-control" placeholder="Enter project title" required />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Client / Company Name</label>
+                            <input type="text" name="clientName" id="projClientName" class="form-control" placeholder="e.g. Acme Corp / Self-Initiated" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Start Date</label>
+                            <input type="date" name="startDate" id="projStartDate" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">End Date</label>
+                            <input type="date" name="endDate" id="projEndDate" class="form-control" />
                         </div>
 
                         <div class="col-12">
@@ -216,7 +269,6 @@
                                 <label class="form-label fw-bold text-dark mb-0">
                                     <i class="fa-solid fa-tags me-2 text-primary"></i>Project Tags
                                 </label>
-                                <!-- NEAR TAGS FIELD KEEP ADD BUTTON -->
                                 <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold px-3" onclick="addTagField()">
                                     <i class="fa-solid fa-plus me-1"></i>Add Tag
                                 </button>
@@ -250,11 +302,13 @@
             document.getElementById('modalProjectTitleText').innerText = "Add Project";
             document.getElementById('projId').value = 0;
             document.getElementById('projTitle').value = "";
+            document.getElementById('projClientName').value = "";
+            document.getElementById('projStartDate').value = "";
+            document.getElementById('projEndDate').value = "";
             document.getElementById('projDescription').value = "";
             document.getElementById('projImageUrl').value = "";
             document.getElementById('projCadFilePath').value = "";
 
-            // Clear tags container and add one initial blank tag input
             const container = document.getElementById('tagsContainer');
             container.innerHTML = "";
             addTagField();
@@ -280,6 +334,9 @@
             document.getElementById('modalProjectTitleText').innerText = "Edit Project";
             document.getElementById('projId').value = data.mstProjectId;
             document.getElementById('projTitle').value = data.projectTitle || "";
+            document.getElementById('projClientName').value = data.clientName || "";
+            document.getElementById('projStartDate').value = data.startDate || "";
+            document.getElementById('projEndDate').value = data.endDate || "";
             document.getElementById('projDescription').value = data.description || "";
             document.getElementById('projImageUrl').value = data.productImageUrl || "";
             document.getElementById('projCadFilePath').value = data.cadFilePath || "";
